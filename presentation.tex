@@ -1,8 +1,10 @@
-\documentclass[aspectratio=169]{beamer}
+\documentclass[aspectratio=169,10pt]{beamer}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
+\usepackage{siunitx}
+\usepackage{mathtools}
 \usepackage{natbib}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -13,27 +15,22 @@
 \usepackage{booktabs}
 \usepackage{soul}
 \usepackage{algorithm2e}
-
-\newcommand{\bruno}[1]{\textcolor{blue}{#1}} % Bruno Sanso edits- blue
-\newcommand{\findcite}{{\color{red} [Find Citation]}}
-\newcommand{\needcite}{\findcite}
-\newcommand{\makenote}[1]{{\color{red} #1}}
-\newcommand{\Chi}{\mbox{\Large$\chi$}}
-\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
-\newcommand{\inorm}[1]{\norm{#1}_{\infty}}
-\newcommand{\pnorm}[2]{\norm{#1}_{#2}}
-
-\newtheorem{prop}{Proposition}
-
-\DeclareMathOperator{\tr}{Tr}
-\DeclareMathOperator*{\argmin}{arg\,min}
-\DeclareMathOperator*{\argmax}{arg\,max}
+\usepackage{nicefrac}
 
 \usetheme{Berlin}
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{mini frames}{}
 \setbeamertemplate{footline}{}
+\setbeamercovered{transparent}
 \renewcommand*{\slideentry}[6]{}
+
+\newcommand{\makenote}[1]{{\color{red} #1}}
+\newcommand{\Chi}{\mbox{\Large$\chi$}}
+\newtheorem{prop}{Proposition}
+
+\DeclareMathOperator{\tr}{Tr}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
 
 \bibliographystyle{plainnat}
 
@@ -49,10 +46,11 @@
 
 \setcounter{tocdepth}{1}
 
-\title{Multivariate Extreme Value Theory \\ and Applications to Anomaly Detection}
+\title{Exploring Multivariate Extreme Value Theory With 
+    Applications To Anomaly Detection}
 \author{Peter Trubey \\ Advisor: Bruno Sans{\'o}}
-\institute{UCSC - Statistics Department}
-\date[8/25/2021]{August 25, 2021}
+\institute{Department of Statistics - UCSC}
+\date[2/??/2025]{February ??, 2025}
 
 \begin{document}
 
@@ -65,9 +63,438 @@
   \tableofcontents
 \end{frame}
 
-
 \section{Introduction}
-\subsection{Motivating Example}
+\subsection{Extreme Value Theory}
+
+\begin{frame}
+    \frametitle{A Brief Background}
+    \begin{minipage}{0.64\textwidth}
+    EVT is\ldots
+    \begin{itemize}
+        \item Inference on the tails of the distribution
+        \item Inference beyond the observed sample
+    \end{itemize}
+    Applications include
+    \begin{itemize}
+        \item Weather and Atmospheric effects
+        \begin{itemize}
+            \item Atmospheric Rivers - Pictured right
+            \item Storm Surge - Later
+        \end{itemize}
+        \item Finance
+        \begin{itemize}
+            \item Mortgage Foreclosures and Associated Market Derivatives
+        \end{itemize}
+        \item Insurance
+        \begin{itemize}
+            \item Catastrophic Natural Events (Floods, Fires)
+        \end{itemize}
+    \end{itemize}
+    \end{minipage} %
+    \begin{minipage}{.35\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{./ch1/images/ar}\\
+    {\scriptsize Credit: NASA}
+    \end{minipage}
+\end{frame} % Intro
+
+\begin{frame}
+    \frametitle{Fisher-Tippet-Gnedenko Thm.}
+    For $w_n \stackrel{iid}{\sim} F$:
+    \begin{itemize}
+    \item If $a_N$, $b_N$ exist such that:
+    \[
+        \lim\limits_{N\to\infty} \mathbb{P}
+            \left[\frac{\vee_{n=1}^N w_n - b_N}{a_N} \leq w\;\right] 
+                \;=\; \lim\limits_{N\to\infty}F^N(a_Nw + b_N) 
+                \;=\; G(w),
+    \]
+    Then $G$ is \emph{max-stable}, and $F$ in its \emph{domain of attraction}.
+    %\pause
+    \item 3 possible forms - \citet{frechet1927,fisher1928,gumbel1942}
+    %\pause
+    \item One Unifying Form - \emph{GEV} \citet{jenkinson1955}
+    \[
+        G(w) = \exp\left\lbrace-\left[
+            1 + \xi\left(\frac{w - b}{a}\right)
+            \right]^{-\frac{1}{\xi}}\right\rbrace
+    \]
+    \end{itemize}
+\end{frame} % Fisher-Tippett-Gnedenko
+
+\begin{frame}
+    \frametitle{Pickands-Balkema-De Haan Thm.}  
+    {\small
+    \citet{pickands1975,balkema1974}
+    \begin{itemize}
+    \item For $W\sim F$
+    \[
+        \mathbb{P}\left[W > u + y\mid W > u\right] 
+            = \frac{1 - F(u + y)}{1 - F(u)},
+    \]
+        known as the \emph{exceedance function}.
+    %\pause
+    \item If $F$ in domain of attraction of a GEV, then
+    \[
+        \lim\limits_{u\to\infty}\mathbb{P}\left(W \geq u + y \mid x \geq y\right)
+        = \lim\limits_{u\to\infty}\frac{1 - F(u + y)}{1 - F(u)} = H(y),
+    \]
+        where $H$ is generalized Pareto
+    %\pause
+    \item Generalized Pareto Density:
+    \[
+        H(y) = 1 - \left(1 + \xi\frac{y - b}{a}\right)^{-\frac{1}{\xi}}.
+    \]
+    %\pause
+    \item If $u$ sufficiently large, excesses above $u$ well approximated by Pareto.
+    
+    Thus,\emph{Peaks-over-Threshold} analysis.
+    \end{itemize}
+    }
+\end{frame} % Pickands-Balkema-de Haan
+
+\begin{frame}
+    \frametitle{Multivariate Pareto Distribution}
+    Assume $W_d \sim F_d$
+    \begin{itemize}
+    \item Standardize $\bm{W}$ according to its marginal distribution
+    \[
+        Z_d = \left(1 + \xi_d\frac{W_d - b_d}{a_d}\right)_+^{\frac{1}{\xi_d}}
+    \]
+        Note that $Z_d > 1 \implies W_d > b_d$.
+    %\pause
+    \item If $F_d$ in DoA of the GEV for all $d = 1,\ldots,D$
+    \[
+    n\;\mathbb{P}\left(
+        \frac{Z_1}{n} \geq z_1 \text{ or }\ldots\text{ or }\frac{Z_D}{n} \geq z_d
+        \right) \xrightarrow[n\to\infty]{} \mu\left([0,\bm{z}]^c\right)
+    \]
+    where $\mu$ is the asymptotic distribution of $Z$ in extreme regions.
+    %\pause
+    \item $\mu$ features the homogeneity property, $\mu(t\cdot) = t^{-1}\mu(\cdot)$.
+    \end{itemize}
+\end{frame} % Multivariate Pareto Distribution
+
+\begin{frame}
+    \frametitle{Spectral (Angular) Measure}
+    \begin{itemize}
+    \item For $B \in \mathbb{S}_{\infty}^{D-1}$, define the \emph{Spectral Measure}
+    \[
+        \Psi(B) = \mu\left\lbrace \bm{z} : R(\bm{z}) > 1,\;V(\bm{z}) \in B\right\rbrace
+    \]
+    where $R(\bm{Z}) = \bigvee_{d = 1}^D Z_d$,  and $V(\bm{Z}) = \bm{Z}\,/\,R(\bm{Z})$
+    %\pause
+    \item Then
+    \[
+        \mu\left\lbrace\bm{z} : R(\bm{z}) > r, V(\bm{z}) \in B\right\rbrace = r^{-1}\Psi(B)    
+    \]
+    Thus $R(\bm{Z})$ is independent of $V(\bm{Z})$.
+    %\pause
+    \item Thus to complete the probability measure
+    \[
+        \Phi(B) = \mathbb{P}\left(\bm{V} \in B \mid R > 1\right) = 
+            \frac{\Psi(B)}{\Psi\left(\mathbb{S}_{\infty}^{D-1}\right)}
+    \]
+    \end{itemize}
+\end{frame} % Spectral Measure
+
+\section[Inferring Extremal Dependence]{BNP Inference for Multivariate PoT Models}
+\subsection{Estimation of the Angular Measure}
+\begin{frame}
+    \frametitle{Separation of Angular and Radial Components}
+    {\small
+    for $\bm{w}_n$, $n = 1,\ldots,N$
+    \begin{enumerate}
+        \item Specify $b_d$, estimate $a_d$, $\xi_d$    
+            marginally for $d = 1,\ldots,D$
+        %\pause
+        \item Standardize according to
+        \[
+            z_{nd} = 
+                \left(1 + \xi_d\frac{w_{nd} - b_d}{a_d}\right)_+^{\frac{1}{\xi_d}}        
+        \]
+        %\pause
+        \item Calculate
+        \[
+            r_n = \bigvee_{d = 1}^D z_{nd},\hspace{1cm}\bm{v}_n = 
+                \frac{\bm{z}_n}{r_n}
+        \]
+        %\pause
+        \item Filter $n : r_n \geq 1$
+        \[
+            r_n \mid r_n \geq 1 \sim \text{Pareto}(1)
+        \]
+        %\pause
+        \item $\bm{Z} \sim \text{MV Pareto}(1)$.  Dependence structure of 
+            $\bm{Z}$ expressed in $\bm{V} \in \mathbb{S}_{\infty}^{D-1}$.
+    \end{enumerate}
+    }
+\end{frame} % Separation of R,V
+
+\begin{frame}
+    \frametitle{The $\mathcal{L}_p$-Norm Sphere}
+    \begin{columns}
+        \begin{column}{.49\textwidth}
+            {\small 
+            \begin{itemize}
+                \item $\mathcal{L}_p$-Norm
+                \[
+                    \lVert \bm{s} \rVert_p = 
+                        \left[{\scriptsize \sum}_{d = 1}^D s_d^p\right]^{\frac{1}{p}}
+                \]
+                %\pause
+                \item Positive Orthant of Unit Sphere under $\mathcal{L}_p$-Norm
+                \[
+                    \mathbb{S}_p^{D-1} = \left\lbrace 
+                        \bm{s} : \bm{s} \in \mathbb{R}_+^D, \; \lVert \bm{s}\rVert_p = 1
+                        \right\rbrace
+                \]
+                %\pause 
+                \item In the limit
+                \[
+                    \mathbb{S}_p^{D-1} 
+                        \xrightarrow[p\to\infty]{} \mathbb{S}_{\infty}^{D-1}
+                \]
+            \end{itemize}
+            }
+        \end{column}%
+        \hfill
+        \begin{column}{.49\textwidth}
+            \begin{center}
+                \includegraphics[
+                    height = \frametextheight, width = \frametextheight
+                    ]{./ch1/images/p_project}
+            \end{center}
+        \end{column}
+    \end{columns}
+\end{frame} % L_p-norm sphere
+
+\begin{frame}
+    \frametitle{Projection onto the Unit Sphere}
+    {\footnotesize
+    \begin{itemize}
+        \item We want to take a distribution from 
+            $\mathbb{R}_+^D$ to $\mathbb{S}_p^{D-1}$
+        %\pause
+        \item For finite $p$,
+        \[
+            Y_D = \left(1 - {\scriptsize \sum}_{d = 1}^D 
+                Y_d^p \right)^{\frac{1}{p}}
+        \]
+        %\pause
+        \item Transform to $R$, $\bm{V}$
+        \[
+            T(X_1,\ldots,X_D) \;=\; 
+                \left(\lVert \bm{X}\rVert_p, \frac{X_1}{\lVert \bm{X}\rVert_p},
+                    \ldots, \frac{X_{d-1}}{\lVert \bm{X}\rVert_p}\right) 
+                \;=\; (R,Y_1,\ldots,Y_{D-1})
+        \]
+        %\pause
+        \item Inverse Transformation:
+        \[
+            T^{-1}(R,Y_1,\ldots,Y_{D-1}) = 
+                \left(RY_1,\ldots,RY_{D-1},
+                    R\left(1 - {\scriptsize \sum}_{d = 1}^{D-1}Y-d^p
+                        \right)^{\frac{1}{p}}\right) = (X_1,\ldots,X_D)
+        \]
+        %\pause
+        \item Determinant of the Jacobian:
+        \[
+            \lvert J\rvert = R^{D-1}\left[Y_D + 
+                {\scriptsize \sum}_{d = 1}^{D-1}Y_d^pY_D^{1-p}\right]
+        \]
+    \end{itemize}
+    }
+    
+    \vfill
+    \hyperlink{pgpareto:jacobian}{\beamerbutton{Jacobian Details}}
+\end{frame} % Projection onto unit Sphere
+
+\begin{frame}
+    \frametitle{Choice of a Norm}
+    \begin{itemize}
+    \item $\bm{V} \in \mathbb{S}_{\infty}^{D-1}$.
+        \[
+            \mathbb{S}_p^{D-1} \xrightarrow[p\to\infty]{} 
+                \mathbb{S}_{\infty}^{D-1}
+        \]
+    %\pause
+    $T^{-1}(\bm{X})$ is not differentiable at $p = \infty$.\vspace{0.25cm}~
+    %\pause
+    \item Recall the Jacobian:
+        \[
+        \lvert J\rvert = R^{D-1}\left[Y_D +
+            {\scriptsize \sum}_{d = 1}^{D-1}Y_d^pY_D^{1-p}\right]
+        \]
+    %\pause
+    \item Density diverges as $Y_D\to 0$.
+    %\pause
+    \item So select large but finite $p$.  Choose $p=10$
+    \end{itemize}
+\end{frame}
+
+\subsubsection{Projected Gamma Distribution}
+
+\begin{frame}
+    \frametitle{Projected Gamma}
+    \label{pgpareto:projectedgamma}
+    \begin{itemize}
+    \item Starting from a product of independent gammas,
+        \[
+        f\left(T(\bm{x})\right) = f(r,\bm{y}) = \prod_{d = 1}^D
+            \text{Ga}(ry_d\mid\alpha_d,\beta_d)\times \lvert J \rvert
+        \]
+    %\pause
+    \item Integrate out $r$:
+        \[
+        f(\bm{y}) = \int_{0}^{\infty}
+            \prod_{d = 1}^D\left[\frac{\beta_d^{\alpha_d}}{\Gamma(\alpha_d)}
+            (ry_d)^{\alpha_d - 1}
+            \exp\left\lbrace-\beta_dry_d\right\rbrace\right] \times 
+            r^{D-1}\left[y_d - \sum_{d = 1}^{D-1}y_d^pY_D^{1-p}\right]
+            \;\text{d}r
+        \]
+    %\pause
+    \item Left with a distribution on $\bm{y} \in \mathbb{S}_{\infty}^{D-1}$
+    \[
+    \mathcal{PG}(\bm{y}\mid\bm{\alpha},\bm{\beta}) = 
+        \prod_{d = 1}^D\left[\frac{\beta_d^{\alpha_d}}{\Gamma(\alpha_d)}
+            y_d^{\alpha_d - 1}\right]
+        \times \left[y_d - \sum_{d = 1}^{D-1}y_d^py_D^{1-p}\right]
+        \times \frac{\Gamma(\sum_{d = 1}^D\alpha_d)}{
+            \left(\sum_{d = 1}^{D}\beta_dy_d\right)^{\sum_{d = 1}^D\alpha_d}}
+    \]
+    \end{itemize}
+    \hyperlink{pgpareto:projgammainference}{\beamerbutton{Recovery of Independence}}
+\end{frame} % Projected Gamma Distribution
+
+\begin{frame}
+    \frametitle{Angular Data Model}
+    \label{pgpareto:angulardatamodel}
+    {\small
+    \begin{itemize}
+    \item Basic Model \emph{(DPPG)}
+        \[
+            \bm{y}_n\mid\bm{\alpha} \sim 
+            \mathcal{PG}\left(\bm{y}\mid\bm{\alpha}_n,\bm{\beta}_n\right)
+            \hspace{1cm}
+            \bm{\alpha}_n \sim 
+            \mathcal{DP}(\bm{\alpha}\mid\eta, G_0)
+        \]
+    %\pause
+        For identifiability, $\beta_{\jmath 1} := 1$\hspace{1cm}
+            \emph{DPPRG}: $\beta_{\jmath d} = \beta = 1$ for all $d$\\~
+    %\pause
+    \item Choice of Centering Distribution
+        \begin{description}
+            \item[\emph{DPPG-G}] Product of Gammas
+                \[
+                G_0 = \prod_{d = 1}^D\text{Ga}\left(\alpha_d\mid \xi_d,\tau_d\right)
+                \times\prod_{d=2}^D\text{Ga}\left(\beta_d\mid \zeta_d,\sigma_d\right)
+                \]
+                With gamma priors on $\xi,\tau,\zeta,\sigma$\\~
+            \item[\emph{DPPG-LN}] Log-Normal
+                \[
+                G_0 = \mathcal{LN}\left(\bm{\alpha}\mid\mu,\Sigma\right) \times \prod_{d = 2}^D\text{Ga}\left(\beta_d\mid \zeta_d,\sigma_d\right)
+                \]
+                With Normal prior on $\mu$, Inverse Wishart prior on $\Sigma$.
+        \end{description}
+    \end{itemize}
+    }
+    \hyperlink{pgpareto:pginference}{\beamerbutton{Full Conditionals for DPPG-G}}
+\end{frame} % Angular Data Model
+
+\subsection{Model Comparison}
+
+\begin{frame}
+    \frametitle{Comparing Model Fidelity on $\mathbb{S}_{\infty}^{D-1}$}
+    Energy Score~\cite{gneiting2007}
+    %\pause    
+    \begin{itemize}
+    \item Generalization of \emph{Continuous Ranked Probability Score} 
+        to multiple dimensions
+        \[
+        \text{ES}\left(P,\bm{x}_i\right) =  
+            \mathbb{E}_p g\left(\bm{X}_i, \bm{x}_i\right)
+            - \frac{1}{2}\mathbb{E}_p g\left(\bm{X}_i,\bm{X}_i^{\prime}\right)
+        \]
+        where $g$ is a negative definite kernel.\footnote{A negative 
+        definite kernel satisfies symmetry in its arguments, and 
+        $\sum_{i = 1}^n\sum_{j = 1}^n \alpha_i\alpha_j g(\bm{x}_1,\bm{x}_2) \leq 0$ 
+        for all $x_1,x_2$, for all $\alpha_i$ such that $\sum_{i = 1}^n\alpha_i = 0$.
+        }
+    %\pause
+    \item With appropriate (negative definite) kernel 
+        $\Longrightarrow$ \emph{proper} scoring rule
+    %\pause
+    \item Need an appropriate kernel in $\mathbb{S}_{\infty}^{D-1}$.  Geodesic distance?
+    %\pause
+    \item Not geodesic distance.  Too costly.
+    %\pause
+    \item Upper bound on geodesic distance - Euclidean norm on 1d Rotation
+    \end{itemize}
+\end{frame} % Model Comparison
+
+\begin{frame}
+    \frametitle{Not Geodesic Distance}
+    \begin{itemize}
+        \item Geodesic distance is length of shortest path from points $\bm{a}$ to $\bm{b}$.
+        \item $\mathbb{S}_1^{D-1}$ easy.  $\mathbb{S}_2^{D-1}$ more difficult. 
+            No simple closed form for $\mathbb{S}_{\infty}^{D-1}$
+        \item $\mathbb{S}_{\infty}^{D-1}$ easier\ldots and harder.
+        \begin{itemize}
+            \item All faces are pairwise adjacent.
+            \item A \emph{net} is an unfolding of a geometric figure.  
+            \item Shortest path corresponds to straight line on appropriate net.
+            \item $D!$ possible nets.  But $\sum_{d = 1}^{D-2}\binom{D-2}{d}$ 
+                possible distinct paths.  Still too much.
+        \end{itemize}
+    \end{itemize}
+\end{frame} % Not geodesic distance 
+
+\begin{frame}
+    \frametitle{Upper Bound on Geodesic Distance on $\mathbb{S}_{\infty}^{D-1}$}
+    \begin{itemize}
+        \item Let $\mathbb{C}_e^{D-1} = \left\lbrace\bm{v} : \bm{v} \in 
+            \mathbb{S}_{\infty}^{D-1},\;\bm{v}_e = 1\right\rbrace$.
+        %\pause
+        \item Let $\bm{a}\in \mathbb{C}_d^{D-1}$, $\bm{b}\in\mathbb{C}_e^{D-1}$, and
+            $\mathbb{C}_{de}^{D-2} = \mathbb{C}_d^{D-1}\cap \mathbb{C}_e^{D-1}$
+            for $d,e\in \lbrace 1,\ldots,D\rbrace$.
+            \[
+            g(\bm{a},\bm{b}) = \begin{cases}
+                \min\limits_{\bm{c}\in\mathbb{C}_{de}^{D-2}}\lVert \bm{c} - \bm{a}\rVert_2 + 
+                    \lVert \bm{b} - \bm{c}\rVert_2 &\text{ for }d\neq e\\
+            \lVert \bm{a} - \bm{b}\rVert_2 &\text{ otherwise}
+            \end{cases}
+            \]
+        %\pause
+        \item A Computationally Efficient Form
+        \[
+            g(\bm{a},\bm{b}) = \lVert \bm{a} - \bm{b}^{\prime}\lVert_2 
+            \text{ where }\bm{b}^{\prime} = \begin{cases}
+                b_i &\text{ for }i\neq d,e\\
+                1 &\text{ for }i = d\\
+                2 - b_d &\text{ for }i = e
+                \end{cases}
+        \]
+        \item Thus, a valid negative definite kernel and distance analogue on $\mathbb{S}_{\infty}^{D-1}$.
+    \end{itemize}    
+\end{frame} % Upper bound on geodesic distance 
+
+\subsubsection{Model Recovery}
+
+\begin{frame}
+    \label{pgpareto:simstudy}
+  \frametitle{Simulation Study - Energy Score}
+  \begin{center}
+    \includegraphics[height=0.9\frametextheight]{./ch1/images/sim_es_rise}
+  \end{center}
+  \hyperlink{pgpareto:simstudydetails}{\beamerbutton{Details}}
+\end{frame} % Simulation Study - Energy Score
+
+\subsection{Integrated Vapor Transport}
+
 \begin{frame}
   \frametitle{Integrated Vapor Transport}
   \begin{minipage}{.7\textwidth}
@@ -76,13 +503,17 @@
             \begin{itemize}
                 \item Concentrated water vapor in atmosphere
                 \item Huge amounts of water
-                \item Predominant source of precipitation for inland California
-                \item Extreme behavior has large implications for land use, agriculture, flood prevention/mitigation
+                \item Predominant source of precipitation for 
+                    inland California
+                \item Extreme behavior has large implications 
+                    for land use, agriculture, flood prevention / mitigation
             \end{itemize}
         \item The data~\citep{guan2015}
             \begin{itemize}
-                \item 42 years of daily average of total water content in atmospheric column above grid cell
-                \item Grid cells cover coast of California in two spatial resolutions (8, and 47 cells)
+                \item 42 years of daily average of total water content 
+                    in atmospheric column above grid cell
+                \item Grid cells cover coast of California in two 
+                    spatial resolutions (8, and 47 cells)
                 \item subset to rainy season (November to March)
             \end{itemize}
     \end{itemize}
@@ -90,527 +521,94 @@
   ~\hfill
   \begin{minipage}{.25\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{./images/ar}\\
+    \includegraphics[width=\textwidth]{./ch1/images/ar}\\
     {\scriptsize Credit: NASA}
    \end{minipage}
-\end{frame}
-
-\subsection{Extreme Value Theory}
+\end{frame} % IVT Intro
 
 \begin{frame}
-  \frametitle{Extreme Value Theory - A Brief Background}
-  \begin{itemize}
-    \item Why EVT?
-        \begin{itemize}
-            \item Inference on the tails of the distribution
-            \item Inference beyond observed sample
-            \item Return levels (100 year flood, etc.)
-        \end{itemize}
-    \item Block Maxima
-        \begin{itemize}
-            \item \citet{frechet1927,fisher1928,gumbel1942,jenkinson1955}
-        \end{itemize}
-    \item Threshold Exceedances
-        \begin{itemize}
-            \item \citet{pickands1975,balkema1974}
-        \end{itemize}
-    \item Multivariate EVT - more difficult
-  \end{itemize}
-\end{frame} % EVT Background
-\begin{frame}
-    \frametitle{Notation}
-    \begin{itemize}
-      \item Wedge Operators
-        \begin{equation*}
-            a \vee b = \max(a,b) \hspace{1cm} a\wedge b = \min(a,b)
-        \end{equation*}
-      \item Positive orthant of unit $d$-sphere under $\mathcal{L}_{\infty}$ norm
-        \begin{equation*}
-          \mathcal{S}_{\infty}^{d-1} = \left\lbrace \bm{s} : \bm{s} \in [0,1]^d,\hspace{0.2cm}
-                            \vee_{l=1}^d s_l = 1\right\rbrace
-        \end{equation*}
-    \end{itemize}
-    
-\end{frame} % Notation
-
-\subsection{EVT - Block Maxima}
-
-\begin{frame}
-  \frametitle{Block Maxima - Fisher-Tippett-Gnedenko Theorem}
-  {\scriptsize\cite{dehaan2006}}\\~\vspace{0.01cm}\\
-  For $x_i \stackrel{\text{iid}}{\sim} F$, Let $M_n = \vee_{i=1}^n x_i$.
-  \begin{itemize}
-    \item If there exists a sequence of constants $a_n > 0$, $b_n$ such that:
-        \begin{equation*}
-            \text{Pr}\left[\frac{M_n - b_n}{a_n} \leq z\right] \xrightarrow[\enskip n\to\infty\enskip]{} G(z),
-        \end{equation*}
-        Then $G$ is a \emph{max-stable distribution}, and $F$ is in its \emph{domain of attraction}
-    \item 3 possible forms~\citep{frechet1927,fisher1928}
-    \pause
-    \item One unifying form, \emph{GEV}~\citep{jenkinson1955}
-      \begin{equation*}
-        F(m \mid \mu, \sigma, \xi) = \exp\left\lbrace-\left[1 +
-              \xi\left(\frac{x - \mu}{\sigma}\right)\right]_{}^{-1/{\xi}}\right\rbrace.
-      \end{equation*}
-    \end{itemize}
-\end{frame} % Fisher-Tippett Theorem 
-
-\subsection{EVT - Thresholding}
-\begin{frame}
-  \frametitle{Thresholding - Pickands-Balkema-de Haan Theorem}
-  {\scriptsize\cite{dehaan2006}}\\
-  \begin{itemize}
-    \item For $X \sim F$:
-      \begin{equation*}
-        \text{Pr}\left[X > u + y\mid X > u\right] = \frac{1 - F(u + y)}{1 - F(u)}.
-      \end{equation*}
-    \pause
-    \item If $F$ is in the domain of the GEV:
-      \begin{equation*}
-        \lim\limits_{u\to u^{\prime}}\text{Pr}\left[X > u + y\mid X > u\right] = H(y)
-      \end{equation*}
-    \pause
-    \item Where $H$ has the form
-      \begin{equation*}
-        H(y) = 1 - \left(1 + \xi\frac{y}{\sigma}\right)^{-\frac{1}{\xi}}
-      \end{equation*}
-  \end{itemize}
-\end{frame} % Thresholding - Pickands Balkema
-
-\subsection{EVT - Multivariate Thresholding}
-
-\begin{frame}
-  \frametitle{Multivariate EVT}
-  {\scriptsize\cite{ferreira2014}}\\~\vspace{-0.1cm}\\
-  \begin{itemize}
-    \item Standardize each $X_i$ according to its marginal distribution
-        \begin{equation*}
-          z_l = \left(1 + \xi_l\frac{x_l - b_{l}}{a_{l}}\right)_{+}^{1/\xi_l}
-        \end{equation*}
-    Note that $Z_l > 1\implies X_l > b_{l}$,\hspace{1cm}$\bigvee_{l=1}^d Z_l \sim \text{Pareto}$
-    \pause
-    \item Assume the existence of limit measure $\mu$ on $\bm{Z}$ such that:
-    \begin{equation*}
-      n\text{Pr}\left(\frac{Z_1}{n} \geq z_1 \text{ or }\ldots\text{ or }\frac{Z_d}{n}\geq z_d\right)
-      \xrightarrow[n\to\infty]{} \mu\left([\bm{0}, \bm{z}]^C\right)
-    \end{equation*}
-    \item $\mu$ is the asymptotic distribution of $\bm{Z}$ in extreme regions.
-    \item $\mu$ features the homogeneity property, $\mu(t\cdot) = t^{-1}\mu(\cdot)$.
-  \end{itemize}
-\end{frame} % Multivariate EVT
-
-\begin{frame}
-  \frametitle{Spectral Measure}
-  {\scriptsize\cite{ferreira2014}}\\~\vspace{0.1cm}\\
-  For $B \subset S_{\infty}^{d-1}$, define the \emph{Spectral Measure}:
-  \begin{equation*}
-    \Omega(B) = \mu\left\lbrace\bm{z}: R(\bm {z}) > 1, V(\bm{Z}) \in B\right\rbrace
-  \end{equation*}
-  where $R(\bm{Z}) = \bigvee_{l = 1}^d Z_l$, $V(\bm{Z}) = \bm{Z} / R(\bm{Z})$.  Then,
-  \begin{equation*}
-    \mu\left[\bm{z}:R(\bm{z})>r, V(\bm{Z})\in B\right] = r^{-1}\Omega(B).
-  \end{equation*}
-  Thus $r$ is independent of $\Omega$.  Complete the probability measure as
-  \begin{equation*}
-    \text{Pr}\left[\bm{V} \in B \mid R > 1\right] = \frac{\Omega(B)}{\Omega(S_{\infty}^{d-1})}
-  \end{equation*}
-\end{frame}
-
-\section{Methodology}
-
-\begin{frame}
-  \frametitle{Casting \emph{Real} Data to $\mathcal{S}_{\infty}^{d-1}$}
-  \begin{enumerate}
-      \item Find $a_l, b_l, \xi_l$
-      \item Standardize according to
-        \begin{equation*}
-         z_l = \left(1 + \xi_l\frac{x_l - b_{l}}{a_{l}}\right)_{+}^{1/\xi_l}
-        \end{equation*}
-      \item Calculate
-        \begin{equation*}
-            r_i = \vee_{l=1}^d z_{il},\hspace{1cm}\bm{v}_i = \frac{\bm{z}_i}{r_i}
-        \end{equation*}
-        
-      \item $r_i\mid r_i \geq 1 \sim \text{Pareto}(1)$ $\rightarrow$ Keep where $r_i \geq 1$.
-      \item Data is time series--decluster by keeping $\argmax_i r_i$ in series where $r_i > 1$
-      \item $\bm{Z} \sim \text{MV Pareto}(1)$.  Dependence structure of $\bm{Z}$ expressed in $\bm{V}\in\mathcal{S}_{\infty}^{d-1}$.
-  \end{enumerate}
-\end{frame}
-
-\subsection{Projection a Distribution to $\mathcal{S}_{\infty}^{d-1}$}
-
-\begin{frame}
-  \frametitle{The Unit $d$-Sphere in $\mathcal{L}_p$}
-  \begin{columns}
-    \begin{column}{.49\textwidth}
-      \begin{itemize}
-        \item $\mathcal{L}_p$ Norm:
-          \begin{equation*}
-            \lVert \bm{s}\rVert_p = \left[{\scriptstyle\sum}_{l = 1}^ds_l^p\right]^{\frac{1}{p}}
-          \end{equation*}
-        \pause
-        \item Positive orthant of unit sphere on $\mathcal{L}_p$
-          \begin{equation*}
-            \mathcal{S}_{p}^{d-1} = \left\lbrace \bm{s} : 
-                \bm{s}\in\mathcal{R}_+^d,\hspace{.2cm} \lVert\bm{s}\rVert_p = 1 \right\rbrace
-          \end{equation*}
-        \item Take limit as $p\to\infty$
-          \begin{equation*}
-              \lim\limits_{p\to\infty}\mathcal{S}_p^{d-1} \rightarrow \mathcal{S}_{\infty}^{d-1}
-          \end{equation*}
-      \end{itemize}%
-      \vfill
-      ~
-    \end{column}%
-    \hfill%
-    \begin{column}{.5\textwidth}
-      \begin{center}
-        \includegraphics[height=\frametextheight, width = \frametextheight]{./images/p_sphere}
-      \end{center}
-    \end{column}%
-  \end{columns}%
-\end{frame} % Unit Sphere - Description
-\begin{frame}
-  \frametitle{Projection onto the Unit Sphere}
-  \begin{itemize}
-    \item Take a distribution from $\mathcal{R}_+^{d}$ to $\mathcal{S}_{p}^{d-1}$
-    \pause
-    \item For finite $p$
-      \begin{equation*}
-        y_d = \left(1 - {\textstyle\sum}_{l = 1}^{d-1}y_l^p\right)^{\frac{1}{p}}
-      \end{equation*}
-    \pause
-    \item Transformation to Radial, Angular
-    \begin{equation*}
-        \begin{aligned}
-      T(x_1,\ldots,x_d) &= \left(\pnorm{\bm{x}}{p}, \frac{x_1}{\pnorm{\bm{x}}{p}},
-                    \ldots , \frac{x_{d-1}}{\pnorm{\bm{x}}{p}}\right) = (r,y_1,\ldots,y_{d-1})\\
-                    \pause
-    T^{-1}\left(r,y_1,\ldots,y_{d-1}\right) &=
-      \left(ry_1,\ldots,ry_{d-1}, r\left(1 - {\textstyle\sum}_{l = 1}^{d-1}y_l^p\right)^{\frac{1}{p}}\right) = (x_1,\ldots,x_d)
-      \end{aligned}
-    \end{equation*}
-    \pause
-    Determinant of the Jacobian:
-    \begin{equation*}
-        \lvert J \rvert = r^{d-1}\left[\left(1 - {\textstyle\sum}_{l = 1}^{d-1}y_l^p\right)^{\frac{1}{p}} +
-      {\textstyle\sum}_{l = 1}^{d-1}y_l^p\left(1 - {\textstyle\sum}_{l=1}^{d-1}
-          y_l^p\right)^{\frac{1}{p} - 1}\right]
-    \end{equation*}
-  \end{itemize}
-\end{frame} % Unit Sphere - Projection
-
-\subsection{Projected Gamma Family}
-\begin{frame}
-  \frametitle{Projected Gamma Distribution}
-  \begin{itemize}
-    \item Assume a product of independent Gammas
-      \begin{equation*}
-        f(r,\bm{y}) = \prod_{l = 1}^d \text{Ga}\left(ry_l\mid\alpha_l,\beta_l\right)
-        \lvert J \rvert I_{\bm{y} \in \mathcal{S}_{p}^{d-1}}
-      \end{equation*}
-    \pause
-    \item Expanded Form
-      \begin{equation*}
-        f(r,\bm{ y}) = \prod_{l = 1}^{d}
-        \left[\frac{\beta_l^{\alpha_l}}{\Gamma(\alpha_l)}(ry_l)^{\alpha_l - 1}
-                    \exp\lbrace-\beta_lry_l\rbrace\right]
-        \times r^{d-1}\left[y_d - {\textstyle \sum}_{l = 1}^{d-1}y_l^p
-                  \left(y_d^p\right)^{\frac{1}{p} - 1}\right]
-      \end{equation*}
-    \pause
-    \item Integrate out radial component; left with distribution on angular
-      \begin{equation*}
-        \text{PG}(\bm{ y}\mid\bm{ \alpha},\bm{ \beta}) = \prod_{l = 1}^d\left[\frac{\beta_l^{\alpha_l}}{\Gamma(\alpha_l)}y_l^{\alpha_l - 1}\right]
-          \times \left[y_d - {\textstyle \sum}_{l = 1}^{d-1}y_l^p\left(y_d^p\right)^{\frac{1}{p} - 1}\right]
-          \times \frac{\Gamma({\textstyle\sum}_{l = 1}^d\alpha_l)}{\left({\textstyle\sum}_{l = 1}^d \beta_ly_l\right)^{{\scriptstyle\sum_{l = 1}^d \alpha_l}}}
-      \end{equation*}
-  \end{itemize}
-\end{frame} % Projected Gamma Distribution
-
-\begin{frame}
-  \frametitle{Data augmentation}
-  \begin{itemize}
-    \item Sample from full conditional for $r$
-      \begin{equation*}
-        r\mid\bm{ \alpha},\bm{ \beta}, y \sim \text{Ga}\left(r\mid{\textstyle\sum}_{l = 1}^d \alpha_l,
-              {\textstyle\sum}_{l = 1}^d \beta_ly_l\right).
-      \end{equation*}
-    \pause
-    \item To recover independent Gammas interetation
-      \begin{equation*}
-        L(\bm{\alpha},\bm{\beta} \mid \bm{r},\bm{y}) \propto
-            \prod_{i = 1}^n\prod_{l = 1}^{d}\text{Ga}\left(r_iy_{il}\mid\alpha_l,\beta_l\right)
-      \end{equation*}
-    \pause
-    \item Enabling independent inference between dimensions
-      \begin{equation*}
-        L(\alpha_l,\beta_l) \propto \prod_{i = 1}^n
-                  \text{Ga}\left(r_iy_{il}\mid\alpha_l,\beta_l\right)
-      \end{equation*}
-  \end{itemize}
-\end{frame} % Data Augmentation
-
-\begin{frame}
-  \frametitle{Projected Gamma Model}
-  \begin{itemize}
-    \item Basic Model
-        \begin{equation*}
-            \begin{aligned}
-                \bm{ y}\mid\bm{\alpha},\bm{\beta} &\sim \text{PG}(\bm{ y}\mid\bm{\alpha},\bm{\beta})\\
-                \bm{ \alpha},\bm{\beta} &\sim {\textstyle \prod}_{l = 1}^d \text{Ga}(\alpha_l \mid \xi_l,\tau_l)
-                    \times {\textstyle \prod}_{l = 2}^d \text{Ga}(\beta_l\mid \zeta_l,\sigma_l).
-            \end{aligned}
-        \end{equation*}
-    \pause
-    \item Finite Mixture of Projected Gammas
-        \begin{itemize}
-            \item embarrassingly parallel
-            \item Not presenting results
-        \end{itemize}
-    \item Dirichlet Process Mixture of Projected (Restricted) Gammas
-        \begin{itemize}
-            \item Gamma or Log-normal prior / centering distribution
-        \end{itemize}
-  \end{itemize}
-  \vfill
-  {\small Note: Projection of Restricted Gammas \emph{(PRG)} sets $\beta_l := 1$ for all $l$.}
-\end{frame} % Vanilla Model
-
-\begin{frame}
-  \frametitle{Choice of Norm}
-  \begin{itemize}
-    \item $\bm{V} \in \mathcal{S}_{\infty}^{d-1}$
-    \pause
-    \item Recall Jacobian of projection from $\mathcal{R}_+^d$ to $\mathcal{S}_{p}^{d-1}$
-    \begin{equation*}
-        \lvert J \rvert = r^{d-1}\left[\left(1 - {\textstyle\sum}_{l = 1}^{d-1}y_l^p\right)^{\frac{1}{p}} +
-        {\textstyle\sum}_{l = 1}^{d-1}y_l^p\left(1 - {\textstyle\sum}_{l=1}^{d-1}
-              y_l^p\right)^{\frac{1}{p} - 1}\right]
-    \end{equation*}
-    \pause
-    If $p\to\infty$, then validity dependent upon $y_d = 1$.  If $y_d\neq 1$, then $\lvert J \rvert \to 0^{-1}$.
-    \pause
-    \item \emph{Difficult} to project density in $\mathcal{R}_+^{d}$ to $\mathcal{S}_{\infty}^{d-1}$
-    \pause
-    \item Easy to project density in $\mathcal{R}_+^{d}$ to $\mathcal{S}_{p}^{d-1}$ for any finite $p$
-    \pause
-    \item Project to $\mathcal{S}_{p}^{d-1}$ for large $p$, then project posterior predictive samples
-  \end{itemize}
-\end{frame}
-
-\section[Model Comparison]{Model Comparison on $\mathcal{S}_{\infty}^{d-1}$}
-\subsection{Model Comparison}
-\begin{frame}
-  \frametitle{Model Comparison on $\mathcal{S}_{\infty}^{d-1}$}
-  \begin{itemize}
-      \item Density is \emph{difficult}
-      \item Multivariate distribution
-      \item Have samples from posterior predictive
-      \begin{itemize}
-            \item Posterior Predictive Loss~\citep{gelfand1998}
-                \begin{equation*}
-                    D_k^{(i)} = \frac{1}{d}\sum_{l = 1}^{d}\left[\text{Var}(X_{il}) +
-                        \frac{k}{k+1}\left(\text{E}[X_{il}] - x_{il}\right)^2\right]
-                \end{equation*}
-            \item Energy Score~\cite{gneiting2007}
-      \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Energy Score}
-  {\scriptsize \citep{gneiting2007}}\\~\vspace{0.2cm}\\
-  \begin{itemize}
-    \item Generalization of CRPS to multiple dimensions
-    \begin{equation*}
-      \label{eq:es}
-      \text{ES}\left(P,\bm{x}_i\right) =  \text{E}_p g\left(\bm{X}_i, \bm{x}_i\right)
-                - \frac{1}{2}\text{E}_p g\left(\bm{X}_i,\bm{X}_i^{\prime}\right)
-    \end{equation*}
-    \pause
-    \item Where $g$ is a negative definite kernel\\
-      Euclidean distance is most common
-    \pause
-    \item What is most appropriate on $\mathcal{S}_{\infty}^{d-1}$?
-  \end{itemize}
-\end{frame}
-
-\subsection{Distance on $\mathcal{S}_{\infty}^{d-1}$}
-\begin{frame}
-  \frametitle{$\mathcal{S}_{\infty}^{2}$ - 2 Possible Paths}
-  \begin{center}
-    \includegraphics[width=0.8\linewidth]{./images/rotation}
-  \end{center}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Distance on $\mathcal{S}_{\infty}^{d-1}$}
-  \begin{itemize}
-    \item Length of the shortest path between two points
-    \pause
-    \item An Unfolded polyhedron is called a \emph{net}
-    \pause
-    \item If we \emph{Unfold} or \emph{Rotate} $\mathcal{S}_{\infty}^{d-1}$ to the appropriate \emph{net}:
-        \begin{itemize}
-            \item Shortest distance is length, or \emph{Euclidean distance} of straight line \citep{pappas1989}
-            \item \emph{Spider and fly problem}
-            \item The \emph{distance} is the length of the shortest line that does not exit the net
-        \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Rotation - 1d and 2d}
-    \begin{center}
-        \includegraphics[height = \frametextheight]{./images/rot_3d_2d}
-    \end{center}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Rotation - 3d}
-    \begin{center}
-        \includegraphics[height=\frametextheight]{./images/rot_4d_3d}
-    \end{center}
-\end{frame}
-
-\subsection{Negative Definite Kernel on $\mathcal{S}_{\infty}^{d-1}$}
-\begin{frame}
-  \frametitle{A Valid Negative Definite Kernel}
-  \begin{prop}
-    For points $a,b \in \mathcal{S}_{\infty}^{d-1}$ a valid negative definite kernel\footnote{A negative definite kernel satisfies symmetry in its arguments, and $\sum_{i = 1}^n\sum_{j = 1}^n \alpha_i\alpha_j g(\bm{x}_1,\bm{x}_2) \leq 0$ for all $x_1,x_2$, for all $\alpha_i$ such that $\sum_{i = 1}^n\alpha_i = 0$.} can be formed as
-    \begin{equation*}
-      g(\bm{a},\bm{b}) = \begin{cases}
-        \pnorm{\bm{b}-\bm{a}}{2} &\text{ if }\argmax_l\bm{a} = \argmax_l\bm{b}\\
-        \pnorm{\bm{c}-\bm{a}}{2} + \pnorm{\bm{b}-\bm{c}}{2} &\text{ otherwise}
-      \end{cases}
-    \end{equation*}
-    where $\bm{c}$ resides on intersection between faces of $\bm{a}$ and $\bm{b}$, and
-                minimizes $g(\bm{a},\bm{b})$.
-  \end{prop}
-\end{frame}
-
-
-
-\section{Results}
-
-\subsection{Simulation}
-
-\begin{frame}
-  \frametitle{Simulation Study}
-  \begin{itemize}
-    \item Finite mixture of Gammas
-    \item For each Number of Mixture Components (3,6,9,12):
-      \begin{itemize}
-        \item Generate a data-set of 20 columns
-        \item output subsets of c = 3,6,12,20 columns projected onto $\mathcal{S}_{\infty}^{c-1}$.
-      \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Simulation - Posterior predictive loss}
-  \begin{center}
-    \includegraphics[height=\frametextheight]{./images/simulation_ppl}
-  \end{center}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Simulation - Energy Score}
-  \begin{center}
-    \includegraphics[height=\frametextheight]{./images/simulation_es}
-  \end{center}
-\end{frame}
-
-\subsection{Integrated Vapor Transport}
+    \frametitle{IVT Grid}
+    \begin{minipage}{.49\textwidth}
+    \centering
+    \includegraphics[height=\frametextheight]{./ch1/images/erai_grid}
+  \end{minipage}
+  \begin{minipage}{.49\textwidth}
+    \centering
+    \includegraphics[height=\frametextheight]{./ch1/images/era5_grid}
+  \end{minipage}
+\end{frame} % IVT Grid Map
 
 \begin{frame}
   \frametitle{IVT - Energy Score}
   \begin{center}
     \include{table_dev}
   \end{center}
-\end{frame}
+\end{frame} % IVT - Energy Score
 
-\section[EVT Applications]{Applications of EVT Analysis}
-\subsection{EVT Applications}
-
-\begin{frame}
-  \frametitle{Applications of EVT Analysis}
-  \begin{itemize}
-    \item Pairwise Extremal Dependence Coefficients~\citep{warner2018}\\~\vspace{0.3cm}\\
-    \item Conditional Survival Functions
-  \end{itemize}
-\end{frame}
-
-\subsection{Pairwise Extremal Dependence Coefficients}
+\subsubsection{IVT - Extremal Dependence}
 
 \begin{frame}
   \frametitle{Pairwise Extremal Dependence Coefficients}
-  {\scriptsize\citep{warner2018}}
     \begin{itemize}
       \item A summary measure of extremal dependence
       \begin{equation*}
-        \chi_{kl} = \lim\limits_{u\to\infty}\text{P}\left(Z_k > u\mid Z_l > u\right).
+        \chi_{kl} = \lim\limits_{u\to\infty}\mathbb{P}\left(Z_k > u\mid Z_l > u\right).
       \end{equation*}
-      \pause
+      %\pause
       \item Bounded to $[0,1]$
         \begin{itemize}
           \item $0$ represents asymptotic independence
           \item A Pareto model can not represent asymptotic independence
         \end{itemize}
-      \pause
+      %\pause
       \item Reformulated to unit hypercube
         \begin{equation*}
-          \chi_{kl} = \text{E}\left[\frac{V_k}{\text{E}(V_k)}{\bigwedge}\frac{V_l}{\text{E}(V_l)}\right]
+          \chi_{k\ell} = \mathbb{E}\left[\frac{V_k}{\mathbb{E}(V_k)}{\bigwedge}\frac{V_{\ell}}{\mathbb{E}(V_{\ell})}\right]
         \end{equation*}
-        Where $\bm{V} = \bm{Z} / \lVert\bm{Z}\rVert_{\infty}$
+        Where $\bm{V} = \bm{Z}\,/\, \lVert\bm{Z}\rVert_{\infty}$
     \end{itemize}
-\end{frame}
+\end{frame} % Pairwise Extremal Dependence coefficients - Intro
 
 \begin{frame}
   \frametitle{IVT - Extremal Dependence}
-  \begin{minipage}{.49\textwidth}
-    \centering
-    \includegraphics[width=0.99\linewidth]{./images/chi_ij_8}
-  \end{minipage}
-  \begin{minipage}{.49\textwidth}
-    \centering
-    \includegraphics[width=0.99\linewidth]{./images/chi_ij_46}
-  \end{minipage}
-\end{frame}
+  \centering
+  \includegraphics[width=0.99\linewidth]{./ch1/images/chi_ij_c}
+\end{frame} % Pairwise Extremal Dependence coefficients - Plot
 
-\subsection{Conditional survival functions}
+\subsubsection{IVT - Conditional Survival}
 
 \begin{frame}
   \frametitle{Conditional Survival Function}
   \begin{prop}
-      In one dimension, the conditional survival function can be calculated as
-   \begin{equation*}
-      \label{eqn:condsurv1df}
-      \text{P}\left[Z_l > z_l\mid \bm{Z}_{\neg(l)} > \bm{z}_{\neg(l)}\right] =
-        \frac{\text{E}\left[\bigwedge_{k = 1}^d \frac{V_k}{z_k}\right]}{
-                      \text{E}\left[\bigwedge_{k \neq l}\frac{V_k}{z_k}\right]}
-    \end{equation*}
-      where $\bm{V} = \bm{Z} / \pnorm{\bm{Z}}{\infty}$.
+      For $\alpha \subset \lbrace 1, \ldots, D\rbrace$
+    \[
+        \mathbb{P}\left[\bigcap_{d\in\alpha}Z_{d} > z_d\mid \bigcap_{d\not\in\alpha}\bm{Z}_{d} > \bm{z}_{d}\right] =
+        \frac{\mathbb{E}\left[\bigwedge_{d = 1}^D \frac{V_k}{z_k}\right]}{
+                      \mathbb{E}\left[\bigwedge_{d\not\in\alpha}\frac{V_d}{z_d}\right]}
+    \]
+      where $\bm{V} = \bm{Z}\,/\,\lVert\bm{Z}\rVert_{\infty}$.
   \end{prop}
-\end{frame}
+\end{frame} % Conditional Survival - Introduction
 
 
 \begin{frame}
   \frametitle{IVT - Conditional Survival 1d}
   \begin{center}
-    \includegraphics[height=0.8\frametextheight,width=0.9\textwidth]{./images/condsurv_1d}
+    \includegraphics[height=0.8\frametextheight,width=0.9\textwidth]{./ch1/images/condsurv_1d}
   \end{center}
-\end{frame}
+\end{frame} % Conditional Survival 1d
 
 \begin{frame}
   \frametitle{IVT - Conditional Survival 2d (selected)}
   \begin{center}
-    \includegraphics[height=\frametextheight,width=\frametextheight]{./images/condsurv_2d}
+    \includegraphics[height=\frametextheight,width=\frametextheight]{./ch1/images/condsurv_2d}
   \end{center}
-\end{frame}
+\end{frame} % Conditional Survival 2d
 
-\section[Anomaly]{Applications to anomaly detection}
+\subsection{Conclusion}
+
+\section[Anomaly Detection]{Anomaly Detection in PoT Settings and Angular Representations of Categorical Data}
+\subsection{Introduction}
 
 \begin{frame}
   \frametitle{What is an anomaly?}
@@ -620,11 +618,11 @@
         \item Observations with large outliers?
         \item Observations with outsized effects?
         \item Data that is \emph{different}.
-        \item Data from regions of data sparsity
+        \item Data from regions of data sparsity.
       \end{itemize}
     \item Desire anomaly \emph{scores}--larger$\rightarrow$more anomalous
   \end{itemize}
-\end{frame}
+\end{frame} % What is an anomaly?
 
 \begin{frame}
   \frametitle{Classical Anomaly Detection Methods}
@@ -646,131 +644,793 @@
         \item Density Estimation routines (GMM's, KDE, KNN)
       \end{itemize}
   \end{itemize}
-\end{frame}
+\end{frame} % Anomaly Detection Methods
+
+\subsection{The Angular Data Model}
 
 \begin{frame}
-  \frametitle{Proposed Anomaly Scoring Methods}
-  \begin{itemize}
-    \item Density Estimation on the hypersphere
-    \item Contribution to Posterior Predictive Loss
-  \end{itemize}
-\end{frame}
+    \frametitle{Angular Distribution}
+    \[
+        \begin{aligned}
+        \bm{y}_n \mid \bm{\alpha}_n &\sim \mathcal{PG}_p
+                \left(\bm{y}\mid\bm{\alpha}_n, \bm{1}\right)\\
+        \bm{\alpha_n} &\sim G\\
+        G &\sim \mathcal{PY}\left(\omega, \eta, G_0\right)\\
+        \end{aligned}
+        ~\hspace{1cm}
+        \begin{aligned}
+        G_0 &= \mathcal{LN}_D\left(\bm{\alpha}\mid\bm{\mu},\Sigma\right)\\
+        \mu &\sim \mathcal{N}_D\left(\bm{0},\bm{1}\right)\\
+        \Sigma &\sim \mathcal{IW}_D\left(\nu, \Psi\right).
+        \end{aligned}
+    \]
+\end{frame} % Angular Distribution
 
 \begin{frame}
-  \frametitle{Posterior Predictive \emph{Density}}
-  \begin{itemize}
-    \item Sample from posterior predictive distribution
-    \item Density estimate based on \emph{distance} to $k$th nearest neighbor
-    \begin{equation*}
-        S_{i,(k)}^{-1} =
-          \frac{k}{N}\frac{\Gamma\left(\frac{d-1}{2} - 1\right)}{\pi^{\frac{d-1}{2}}D_{k}^{d-1}(V_i)}
-    \end{equation*}
-    Using the 1d rotation distance estimate established earlier.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Contribution to Posterior Predictive Loss}
-    \begin{equation*}
-         S_{i} = \frac{1}{d}\sum_{l = 1}^{d}\left[\text{Var}(X_{il}) +
-                        \left(\text{E}[X_{il}] - x_{il}\right)^2\right]
-    \end{equation*}
+    \frametitle{Pitman-Yor Model}
     \begin{itemize}
-        \item \emph{Variance} and \emph{Bias} terms
-        \item Larger values for both indicate \emph{hard to predict} observation.
-        \item Anomalies are \emph{different} from prevailing distribution--PPL would indicate this
+    \item Stick-breaking Weight - Full Conditional
+    \[
+    \rho_{\jmath} \mid \bm{n} \sim \text{Beta}\left(1 + C_{\jmath} - \omega, 
+            \eta + \sum_{k > \jmath} C_k + \jmath \omega\right)
+    \]
+    %\pause
+    \item Cluster weights
+    \[
+        \pi_{\jmath} := \rho_{\jmath} \prod_{k < \jmath}(1 - \rho_k)
+    \]
+    %\pause
+    \item Cluster Identity - Full Conditional
+    \[
+    \mathbb{P}\left[\gamma_n = \jmath \mid \bm{\pi},\bm{\alpha}\right] =
+            \frac{\pi_{\jmath}\;\mathcal{PG}_p\left(\bm{y}_n\mid\bm{\alpha}_{\jmath},\bm{1}\right)}{
+                \sum_{k = 1}^J \pi_k\;
+                \mathcal{PG}_p\left(\bm{y}_n\mid\bm{\alpha}_k,\bm{1}\right)}
+    \]
     \end{itemize}
+\end{frame} % Pitman-Yor expansion
+
+\subsection{Novelty Detection Methods}
+
+\begin{frame}
+    \frametitle{Posterior Predictive Density}
+    \begin{itemize}
+        \item A General Anomaly Score:
+        \[
+            \mathcal{S}_n = \left[\int_{\Theta}f(x_n\mid\theta)\,dG(\theta\mid\bm{x})\right]^{-1}
+        \]
+        %\pause
+        \item An Extremal Anomaly Score:
+        \[
+            \mathcal{S}_n = \mathcal{S}_{n,r} \times \mathcal{S}_{n,\bm{v}}
+                = f_r(r_n)^{-1}\times \left[\int_{\Omega}f_{\bm{v}}(\bm{v}_n\mid\bm{\alpha})\,\text{d}G(\bm{\alpha}\mid\bm{v})\right]^{-1}
+        \]
+        where $r_n\sim\text{Pareto}(1)$ by construction, so $f_r(r_n) = r_n^2$.
+    \end{itemize}
+\end{frame} % Posterior Predictive Density
+
+\begin{frame}
+    \frametitle{Estimation of the Angular Score}
+    \begin{itemize}
+        \item Density on $\mathbb{S}_{\infty}^{D-1}$ is not available.
+        %\pause
+        \item Density on $\mathbb{S}_p^{D-1}$ is problematic---no unique transformation.
+        %\pause
+        \item Gamma density is problematic.  For 
+            $\alpha < 1$, \[\text{Ga}(x\mid\alpha, 1) \xrightarrow[x\to0]{} \infty\]
+        %\pause
+        Multivariate extreme data tends to exist near edges, with some $\bm{v}_d$ approaching 0.
+        %\pause
+        \item Alternative Density Estimator?
+    \end{itemize}
+\end{frame} % Estimation of Angular Score
+
+\begin{frame}
+    \frametitle{$k$-Nearest Neighbors}
+    \begin{itemize}
+        \item Radius to $k$-th nearest neighbor
+        \[
+            R_k(\bm{v}_n) = g\left(\bm{v}_n,\bm{v}_{N_k(n)}^*\right)
+        \]
+        where $\bm{v}_{N_k(n)}^*$ is the $k$th nearest neighbor of $\bm{v}_n$ on the posterior predictive sample.
+        %\pause
+        \item Assume a uniform density within a sphere of radius of $R_k(\bm{v}_n)$
+        %\pause
+        \item Score:
+        \[
+            \mathcal{S}_{n,\bm{v}}^{\text{$k$NN}} = \frac{N\pi^{\frac{D-1}{2}}R_k(\bm{v}_n)^{D-1}}{k\Gamma(\frac{D-1}{2} - 1)}
+        \]
+        the reciprocal of that density.
+    \end{itemize}
+\end{frame} % KNN
+
+\begin{frame}
+    \frametitle{Kernel Density Estimation}
+    {\footnotesize
+    \begin{enumerate}
+        \item General KDE for scalar bandwidth parameter $h$
+        \[
+        f_n(\bm{x}) = \int_{\Omega}\frac{1}{h}\mathcal{Q}\left(\frac{\bm{x} 
+                - \bm{t}}{h}\right)dF_n(\bm{t})
+            \approx \frac{1}{Kh}\sum_{k = 1}^K\mathcal{Q}\left(\frac{\bm{x} 
+                - \bm{x}_k^*}{h}\right)
+        \]
+        where $\bm{x}_k^*$ are replicates from $F$.  We use normal distribution 
+            for $\mathcal{Q}$
+        %\pause
+        \item Silverman's Rule of Thumb
+        \[
+            \hat{h} = \left(\frac{4}{D + 2}\right)^{
+                \frac{1}{D + 4}}K^{-\frac{1}{D+4}}
+                \hat{\sigma}
+        \]
+        where $\hat{\sigma}$ refers to empirical standard deviation.
+        %\pause
+        \item Recall for R.V. $X$, 
+            $\mathbb{E}\left[\lVert X_{\jmath} - X_k\rVert_2\right] = 2\text{Var}(X)$.  
+            Then
+        \[
+            \hat{\sigma} = 
+                \sqrt{\frac{1}{2K(K-1)}\sum_{\jmath \neq k}
+                    g\left(\bm{v}_{\jmath}^*,\bm{v}_k^*\right)}
+        \]
+        %\pause
+        \item Score:
+        \[
+        \mathcal{S}_{n,\bm{v}}^{\text{kde}} \propto 
+            \sum_{k=1}^K\exp\left\lbrace-\left(
+                \frac{g(\bm{v}_n,\bm{v}_k^*)}{h}\right)^2\right\rbrace
+        \]
+    \end{enumerate}
+    }
+\end{frame} % Kernel Density Estimation
+
+\subsection{Binary and Categorical Data}
+
+\subsubsection{Angular Representations of Categorical Data}
+
+\begin{frame}
+    \frametitle{Categorical Distributions}
+    \begin{itemize}
+        \item Dirichlet-Multinomial Distribution
+            \[
+            \mathcal{DM}(\bm{c}\mid\bm{\alpha}) = 
+                \int_{\bm{\pi}}\mathcal{M}(\bm{c}\mid\bm{\pi})\,
+                \mathcal{D}(\bm{\pi}\mid\bm{\alpha})\,\text{d}\bm{\pi}
+            \]
+        %\pause
+        \item Dirichlet-Categorical Distribution
+            \[
+            \bm{c}\mid\bm{\alpha} \sim 
+            \mathcal{DC}(\bm{c}\mid\bm{\alpha}) = 
+            \frac{
+                \Gamma(\sum_{d=1}^D \alpha_{d})
+                }{
+                \Gamma(1 + \sum_{d = 1}^D\alpha_{d})
+                }
+            \prod_{d = 1}^D 
+            \frac{\Gamma(c_{d} + \alpha_{d})}{\Gamma(\alpha_{d})}
+            \]
+    \end{itemize}
+\end{frame} % Categorical Distributions
+
+\begin{frame}
+    \frametitle{Categorical Data Model}
+    Let $\bm{c}_m$ be categorical RV with $D_m$ categories in one-hot encoding.  
+    then $\mathcal{CDC}(\bm{c}\mid\bm{\alpha}) = 
+        \prod_{m = 1}^M \mathcal{DC}(\bm{c}_m\mid\bm{\alpha}_m)$.  
+        Then
+    \begin{itemize}
+    %\pause
+    \item Model:
+    \[
+    \begin{aligned}
+      \bm{c}_n \mid \bm{\alpha}_n &\sim 
+        \mathcal{CDC}\left(\bm{c}_n\mid\bm{\alpha}_n\right)\\
+      \bm{\alpha_n} &\sim G\\
+      G &\sim \mathcal{PY}\left(d, \eta, G_0\right)\\
+      \end{aligned}
+      ~\hspace{1cm}
+      \begin{aligned}
+      G_0 &= \mathcal{LN}\left(\bm{\alpha}\mid\bm{\mu},\Sigma\right)\\
+      \mu &\sim \mathcal{N}\left(\bm{0},\bm{1}\right)\\
+      \Sigma &\sim \mathcal{IW}\left(\nu, \Psi\right).
+      \end{aligned}
+      \]
+    %\pause
+    \item $\Psi$ is block-diagonal matrix.  Within each $m$-block:
+    \begin{itemize}
+        \item diagonals set to $\psi_0$
+        \item off-diagonals set to $-\psi_0D_m^{-2}$; Covariance of uniform categorical.
+    \end{itemize}
+    \end{itemize}    
+\end{frame} % Categorical Data Model 
+
+\subsubsection{Novelty Detection for Categorical Data}
+
+\begin{frame}
+    \frametitle{Novelty Scores}
+    \label{ndpg:noveltyscores}
+    \begin{itemize}
+    \item Latent Cluster ID's / Parameters
+        \[
+        \mathbb{P}[\gamma_n = \jmath\mid \bm{\alpha}, \bm{\pi}, \bm{c}_n] = 
+        \frac{
+            \pi_{\jmath}\,\mathcal{CDC}\left(\bm{c}_n\mid\bm{\alpha}_{\jmath}\right)
+            }{
+            \sum_{k = 1}^J\,\pi_k\,\mathcal{CDC}\left(\bm{c}_n\mid\bm{\alpha}_k\right)
+            }
+            \;\;\;\text{ for }\jmath = 1, \ldots, J,
+        \]
+    where $\bm{\pi}$ is cluster weight.
+    \item \emph{Angular} representation of categorical:
+        \begin{enumerate}
+            \item Take samples of $\gamma_n\mid \bm{\alpha}_k,\bm{\pi}_k,\bm{c}_n$ for $k = 1,\ldots,K$, for $n = 1,\ldots, N$.
+            \item Sample $\bm{\varphi}_{nk}\sim \prod_{d = 1}^D\text{Ga}(\varphi_d\mid\alpha_{nkd},1)$
+            \item Angular representation is conditional posterior of $\bm{\nu}_n = \bm{T}_{\infty}(\bm{\varphi}_n)$
+            \item Simplex representation is conditional posterior of $\bm{\pi}_n = \prod_{m = 1}^MT_1(\bm{\varphi}_{nm})$
+        \end{enumerate}
+    \item Scores based on pairwise distances between samples of $\bm{\nu}_n$ and $\bm{\nu}^*$
+    \end{itemize}
+    \hyperlink{ndpg:noveltyscoresdetail}{\beamerbutton{Novelty Score Details}}
+\end{frame} % Categorical Anomaly Scores setup
+
+\begin{frame}
+    \frametitle{AuROC - Categorical}
+    \begin{table}
+        \centering
+        \input{./ch2/tables/ad_cat_performance_update}
+    \end{table}
+\end{frame} % Categorical Anomaly Score Performance Data
+
+\subsection{Mixed Data}
+
+\begin{frame}
+    \frametitle{Mixed Data Model}
+    {\small 
+    \begin{itemize}
+        \item Joint Model:
+        \[
+        (\bm{y},\bm{c}) \sim \int_{\bm{\alpha}}
+            \mathcal{PG}_p(\bm{y}\mid\bm{\alpha}_y,\bm{1})\,
+            \mathcal{CDM}(\bm{c}\mid\bm{\alpha}_c)\;\text{d}G(\bm{\alpha})
+        \]
+        %\pause
+        \item Joint Projection:
+        \[
+            R_n \mid \bm{\alpha} \sim \text{Ga}\left(R\mid\sum_{d = 1}^{D_y} \alpha_{yd}, 1\right)
+        \]
+        Then $\bm{\nu}_n = T_{\infty}(R_n\bm{y}_n,\bm{\varphi}_{nc})$
+        %\pause
+        \item \emph{h$k$nn}, \emph{hkde}, \emph{lhkde} as previous.
+        %\pause
+        \item \emph{lmkde}:
+        \[
+        \begin{aligned}
+            \mathcal{S}_{n,\bm{v}}^{lmkde} &= \mathbb{E}_{\bm{v}^*,\bm{\pi}^*,\bm{\pi}_n}\left[
+        \exp
+        \left\lbrace 
+        -\frac{1}{2}
+        \left(
+        \frac{g\left(\bm{v}_n, \bm{v}^*\right)}{\hat{h}_{\bm{v}^*}}
+        \right)^2
+        -\frac{1}{2}
+        \left(
+        \frac{\lVert\bm{\pi}_n - \bm{\pi}^*\rVert_1}{\hat{h}_{\bm{\pi}^*}}
+        \right)^2
+        \right\rbrace
+        \right]^{-1}\\
+        &\approx \left[\frac{1}{K_{\bm{\pi}^*}K_{\bm{\pi}_n}}
+            \sum_{\jmath = 1}^{K_{\bm{\pi}_n}}\sum_{k=1}^{K_{\bm{\pi}^*}}
+            \exp\left\lbrace-\frac{1}{2}
+            \left(\frac{g(\bm{v}_n,\bm{v}_k^*)}{\hat{h}_{\bm{v}^*}}\right)^2
+            -\frac{1}{2}\left(
+            \frac{\lVert\bm{\pi}_{n\jmath} - \bm{\pi}_k^*\rVert_1}{\hat{h}_{\bm{\pi}^*}}
+            \right)^2
+            \right\rbrace\right]^{-1}
+        \end{aligned}
+        \]
+    \end{itemize}
+    }
+\end{frame} % Mixed Data Model
+
+\begin{frame}
+    \frametitle{AuROC - Mixed Data}
+    \begin{table}
+        \centering
+        \input{./ch2/tables/ad_real_performance_update}
+    \end{table}
+\end{frame} % AuROC - Mixed Real
+
+\subsubsection{Rank Transformation}
+
+\begin{frame}
+    \frametitle{Relaxing the Assumption of Independence}
+    \begin{itemize}
+        \item Rank Transformation / Standardization
+        \[
+            z_{nd} = \frac{1}{1 - \hat{F}(w_{nd})}\
+            \hspace{1cm}r_n = \lVert \bm{z}_n\rVert_{\infty}
+            \hspace{1cm}\bm{v_{n}} = \frac{\bm{z}_n}{r_n}
+        \]
+        \item Model
+        \[
+        (\bm{y}_n,\bm{c}_n,r_n) \sim \int_{\bm{\alpha}}
+            \mathcal{PG}_p(\bm{y}_n\mid\bm{\alpha}_{\bm{y}}, \bm{1})\;
+            \mathcal{CDM}(\bm{c}_n\mid\bm{\alpha}_{\bm{c}})\;
+            \mathcal{P}(r_n\mid\alpha_r)\;
+            \text{d}G(\bm{\alpha})
+        \]
+        \item Scores developed as previously described        
+    \end{itemize}
+\end{frame} % Rank Data Model
+
+\begin{frame}
+    \frametitle{AuROC - Rank-Transformed Data}
+    \begin{table}
+        \centering
+        \input{./ch2/tables/ad_rank_performance_update}
+    \end{table}
+\end{frame} % AuROC - Mixed Rank
+
+\subsection{Conclusion}
+
+\section[Application At Scale]{Extremal Dependence of Storm Surge Using a PoT Model}
+\subsection{Introduction}
+
+\subsubsection{SLOSH}
+
+\begin{frame}
+    \frametitle{Sea, Lakes, and Overland Surges due to Hurricanes (SLOSH)}
+    \begin{itemize}
+        \item Simulations of storm surge given storm characteristics
+        \begin{description}
+            \item[Bearing] of storm eye at landfall
+            \item[Velocity] of storm eye at landfall
+            \item[Latitude] of storm eye at landfall
+            \item[Minimum Pressure] of storm
+            \item[Projected Sea Level Rise] over 100 years
+        \end{description}
+        \item Each simulation an output grid
+        \begin{itemize}
+            \item \num{23119800} elements
+            \item Spatial resolution 0.001 degrees, approx 90 meters.
+        \item 4000 simulations
+        \item Parameters sampled via Latin hypercube
+        \end{itemize}
+    \end{itemize}
+\end{frame} % SLOSH Intro
+
+\begin{frame}
+    \frametitle{SLOSH, and locations}
+    \begin{center}
+    \includegraphics[height=\frametextheight]{./ch3/plots/slosh_combined}
+    \end{center}
+\end{frame} % SLOSH Locations
+
+\begin{frame}
+    \frametitle{Slices of SLOSH}
+    \begin{center}
+    \input{./ch3/tables/datadesc}
+    \end{center}
+\end{frame} % SLOSH datasets
+
+\begin{frame}
+    \frametitle{Threshold Trade-offs}
+    \begin{center}
+        \includegraphics[height = 0.99\frametextheight]{./ch3/plots/explore_threshold}
+    \end{center}
+\end{frame} % SLOSH Threshold Tradeoffs
+
+\begin{frame}
+    \frametitle{Identified Sites in Delaware}
+    \begin{centering}
+        \includegraphics[width=0.99\linewidth]{./ch3/plots/delaware}
+    \end{centering}
+\end{frame} % Delaware Plot
+
+\begin{frame}
+    \frametitle{Parameters of Surviving Storms}
+    \begin{center}
+        \includegraphics[height=0.99\frametextheight]{./ch3/plots/threshold_pairs}
+    \end{center}
+\end{frame} % Threshold Pairs
+
+\subsection{Methodology}
+
+\begin{frame}
+    \frametitle{Angular Model}
+        \[
+        \begin{aligned}
+                \bm{y}_n \mid \bm{\alpha}_n &\sim
+                    \mathcal{PG}_p\left(\bm{Y}\mid\bm{\alpha}_n,\bm{1}\right)\\
+                \bm{\alpha}_n &\sim G\\
+                G &\sim \mathcal{PY}\left(\eta, \omega, G_0\right)        
+            \end{aligned}
+            ~\hspace{1cm}
+            \begin{aligned}
+                G_0 &= {\textstyle\prod}_{d = 1}^{D}
+                    \text{Ga}(\alpha_{d}\mid \xi_{d},\tau_{d})\\
+                \xi_{d} &\sim \mathcal{G}(\xi\mid a, b)\\
+                \tau_{d} &\sim \mathcal{G}(\tau\mid c, d)
+            \end{aligned}
+        \]
+    where $\omega \in [0,1)$ is discount parameter, $\eta > -\omega$ is concentration parameter.
+\end{frame} % Angular Model
+
+\begin{frame}
+    \frametitle{}
+    \begin{itemize}
+        \item Cluster Probability Full Conditional
+        \[
+        \mathbb{P}\left(\gamma_n = \jmath\mid \bm{y},\bm{\alpha},\bm{\rho}\right) = 
+            \frac{\pi_\jmath\mathcal{PG}(\bm{y}_n\mid\bm{\alpha}_{\jmath})}{
+                \sum_{k = 1}^J \pi_k\mathcal{PG}(\bm{y}_n\mid\bm{\alpha}_{\jmath})}
+        \]
+        where $\pi_{\jmath} = \rho_{\jmath}\prod_{k < \jmath}(1 - \rho_k)$
+        \item Cluster Weight Full Conditional
+        \[
+        \rho_{\jmath}\mid\bm{\gamma} \sim 
+            \mathcal{B}\left(\zeta_{\rho_\jmath 1} = 1 + C_{\jmath} - \omega,\; 
+            \zeta_{\rho_{\jmath} 2} = {\textstyle \sum}_{k>\jmath} 
+                C_k + \eta + \jmath \omega\right),
+        \]
+        where $C_\jmath = \sum_{n = 1}^N\bm{1}_{\gamma_n = \jmath}$.
+    \end{itemize}
+\end{frame} % Cluster Probability Full Conditional
+
+\subsubsection{Variational Inference}
+
+\begin{frame}
+    \frametitle{A Brief Review}
+    \begin{itemize}
+    \item The Goal
+        \[
+            q^*(\bm{\theta}) = \argmin_{q\in\mathcal{Q}}\left\lbrace
+            \text{KL}\left(q(\bm{\theta})||f(\bm{\theta}\mid\bm{x})\right) 
+            \coloneqq
+            \mathbb{E}_{q}\left[\log\left(
+            \frac{q(\bm{\theta})}{f(\bm{\theta}\mid\bm{x})}
+            \right)\right]
+            \right\rbrace.
+        \]
+    \item Mean Field Variational Bayes
+        \[
+            q_{\bm{\theta}} = \prod_{\ell \in L}
+                q_{\theta_{\ell}}(\theta_{\ell}\mid\psi_{\ell})
+        \]
+    \item Evidence Lower Bound (ELBO)
+        \[
+            \mathcal{L}(\bm{\theta}) = 
+                \mathbb{E}_q\left[\log f(\bm{x},\bm{\theta}) - 
+                \log q(\bm{\theta})\right] 
+            = \mathbb{E}_q[\log f(\bm{x},\bm{\theta})] - H,
+        \]
+    where $H$ is entropy of $q$.
+    \end{itemize}
+\end{frame} % Brief Review of VI
+
+\begin{frame}
+    \frametitle{Optimization Strategy}
+    \begin{itemize}
+    \item For given family $Q$, optimal $q^*$ means optimal parameter set 
+        $\bm{\psi}^*$ such that
+        \[
+            q^*(\bm{\theta}) = q(\bm{\theta}\mid\bm{\psi}^*)
+        \]
+    \item Compute the gradient
+        \[
+            \Delta_{\bm{\psi}} = \frac{\partial}{\partial \psi_{\ell}}
+                \left\lbrace\mathbb{E}_{q}\left[\log f(\bm{y}\mid\bm{\theta})\right] 
+                    - H(\bm{\psi})\right\rbrace
+                \;\;\text{ for }\ell = 1,\ldots,L
+        \]
+    and move towards optimal point $\Delta_{\bm{\psi}} = \bm{0}$.
+
+    The gradient isn't available in closed form in this model.
+    \item Reparametrization Gradient \cite{kingma2022}:
+        \begin{enumerate}
+            \item Take Samples of $\bm{\theta} = T(\bm{\psi}, \bm{\varepsilon})$ 
+                where $\varepsilon \stackrel{iid}{\sim} \mathcal{N}(0,1)$
+            \item Move differentiation w.r.t. $\bm{\psi}$ within expectation
+            \item Take expectation numerically.
+        \end{enumerate}
+    \end{itemize}
+\end{frame} % Optimization Strategy
+
+\begin{frame}
+    \frametitle{VB Initialization}
+    {\footnotesize
+    \begin{itemize}
+        \item Using the Adam Optimizer \cite{kingma2017}
+        %\pause
+        \item Still dependent on starting position
+        %\pause
+        \item Starting position strategies
+        %\pause
+        \begin{enumerate}
+            \item[Random] - Random init of cluster parameters and weights
+            %\pause
+            \item[Uniform] - Random init of cluster parameters, weights initialized such that
+            \[
+                \mathbb{E}[\bm{\rho}] = \left(\frac{1}{J},\frac{1}{J-1},\ldots,\frac{1}{3},\frac{1}{2}\right)
+                \rightarrow \mathbb{E}[\pi_j] = \left(\frac{1}{J},\ldots,\frac{1}{J}\right)
+            \]
+            %\pause
+            \item[Pregamed] - Abridged MCMC init of parameters
+            \begin{enumerate}
+                \item Random init cluster parameters, weights
+                \item Iterative (1) cluster ID's, weights, via Gibbs step
+                \item Iterative (2) Resample cluster parameters from initializing distribution
+                \item Set parameters:
+                \[
+                \begin{aligned}
+        q_{\alpha_{\jmath d}} &= 
+            \mathcal{LN}\left(\psi_{\alpha_{\jmath d \mu}} 
+                \coloneqq\log(\alpha_{\jmath d}) - 0.005,\; 
+                \psi_{\alpha_{\jmath d}\sigma} \coloneqq0.1\right)\\
+        q_{\rho_{\jmath}} &= \text{Logit}\mathcal{N}\left(
+        \psi_{\rho_{\jmath}\mu} \coloneqq\psi(\zeta_{\rho_{\jmath} 1}) - \psi(\zeta_{\rho_{\jmath} 2}), \;
+            \psi_{\rho_{\jmath}\sigma^2} \coloneqq\psi^{\prime}(\zeta_{\rho_{\jmath} 1}) +
+                \psi^{\prime}(\zeta_{\rho_{\jmath} 2})
+            \right)
+        \end{aligned}   
+                \]
+                where $\psi(\cdot)$ and $\psi^{\prime}(\cdot)$ are 
+                    digamma and trigamma functions, respectively.
+            \end{enumerate}
+        \end{enumerate}
+    \end{itemize}
+    }
+\end{frame} % VB Initialization
+
+\begin{frame}
+    \frametitle{Model Fidelity for Initialization Strategies}
+    \begin{center}
+    \includegraphics[width = 0.99\textwidth]{./ch3/plots/energy_score}
+    \end{center}
+\end{frame} % VB Performance
+
+\subsubsection{Model Recovery}
+
+\begin{frame}
+    \frametitle{Extant Clusters}
+    \begin{center}
+        \input{./ch3/tables/extant_clusters}
+    \end{center}
+    {\footnotesize Counts of emergent clusters identified in data slices via posterior sampling.}
+\end{frame} % Extant Clusters
+
+\begin{frame}
+    \frametitle{Marginally Assessing Model Fidelity}
+    \begin{itemize}
+        \item Comparative rise in energy score shrinks with data complexity
+        \item How do we assess model fidelity then?
+        \item Recovery of marginal CDF?
+        \item Having sampled $\bm{V}^*$ from PPD, $R^*\sim\text{Pareto}(1)$, and $\bm{Z}^* = R^*\bm{V}^*$:
+        \[
+             W_d^* = \left[a_d\left(\frac{(Z_d^*)^{\xi_d} - 1}{\xi_d}\right) + b_d\right]_+
+        \]
+        where $\bm{\xi}$, $\bm{a}$, $\bm{b}$ were previously calculated.
+    \end{itemize}
+\end{frame} % Marginal Assessing Model Fidelity (Explanation)
+
+\begin{frame}
+    \frametitle{Marginal Recovery of CDF}
+    \begin{center}
+        \includegraphics[height=0.99\frametextheight]{./ch3/plots/delaware_marginal_cdfs}
+    \end{center}
+\end{frame} % Marginal Recovery of CDF (Plot)
+
+\subsubsection{Conditional Survival Probability}
+
+\begin{frame}
+    \frametitle{Conditional Survival Curves}
+    \begin{itemize}
+        \item Recall the Conditional Survival Probability
+        \[
+        \mathbb{P}\left[\bigcap_{d\in\alpha}Z_d \geq z_d\;\middle|\;
+            \bigcap_{d\not\in\alpha}Z_d \geq z_d\right] =
+        \frac{
+            \mathbb{E}\left[\bigwedge_{d=1}^D 1\wedge \frac{V_d}{z_d}\right]
+        }{
+            \mathbb{E}\left[\bigwedge_{d\not\in\alpha} 1\wedge \frac{V_d}{z_d}\right]
+        }
+        \]
+        \item We can use $\bm{Z}_{\neg\alpha}$ to specify \emph{scenarios}
+    \end{itemize}
+\end{frame} % Conditional Survival Probability
+
+\begin{frame}
+    \frametitle{Conditional Survival Curves}
+    \begin{center}
+        \includegraphics[height=0.99\frametextheight]{./ch3/plots/condsurv/condsurv_1d_mcmc_combined}
+    \end{center}
+\end{frame} % Conditional Survivla
+
+\begin{frame}
+    \frametitle{Conditional Survival Surfaces}
+    \begin{center}
+        \includegraphics[height=0.99\frametextheight]{./ch3/plots/condsurv/condsurv_2d_mcmc_combined}
+    \end{center}
+\end{frame} % Conditional Survival Surfaces
+
+\subsection{Regression}
+
+\begin{frame}
+    \frametitle{Regression Model}
+    {\footnotesize 
+    \begin{itemize}
+        \item Consider
+        \[
+            \bm{y}_n \sim \mathcal{PG}(\bm{y}\mid g(\bm{x}_n^T\bm{\theta}), \bm{1});
+            \hspace{1cm}
+            g(\cdot) = \log[1 + \exp(\cdot)]
+        \]
+        Some discussion necessary as to the dimensionality of $\bm{\theta}$.
+        \item $\bm{x}_n$ of dimension $L$
+        \item A \emph{fully specified} model has, for each dimension $d$, a vector $\bm{\theta}_{nd}$ of dimension $L$.
+        \[
+        \bm{y}_n \sim \int_0^{\infty}
+            \prod_{d = 1}^D \mathcal{G}\left(r_ny_{nd}\mid 
+                g(\bm{x}_n^T\bm{\theta}_{nd}), 1\right) \times J^{\neg r}(\bm{y}_i) r^{D-1}\text{d}r 
+        \]
+        %\pause
+        or, more succinctly
+        \[
+        \bm{y}_n \sim \mathcal{PG}\left(\bm{y}_n \mid g((\bm{x}_n 
+            \otimes \bm{I}_{D})^T\bm{\theta}), \bm{1}\right)
+        \]
+        where $\otimes$ is Kronecker Product.
+        \item A Regression Model
+        \[
+        \begin{aligned}
+            \bm{y}_n &\sim \mathcal{PG}\left(\bm{y}\mid 
+                g\left((\bm{x}_n\otimes\bm{I}_D)^T\bm{\theta}_n\right), \bm{1}\right)\\
+            \theta_n &\sim G\\
+            G &\sim \mathcal{PY}(G\mid\eta, \omega, G_0)
+        \end{aligned}
+        ~\hspace{2cm}
+        \begin{aligned}
+            G_0 &= \mathcal{N}(\bm{\theta} \mid \mu, \Sigma)\\
+            \Sigma &\sim \mathcal{IW}(\Sigma\mid \nu, \psi)\\
+            \mu\mid\Sigma &\sim \mathcal{N}(\mu\mid \bm{0}, \Sigma / \kappa)
+        \end{aligned}
+        \]
+    \end{itemize}
+    }
+\end{frame} % Regression Model (Fully Specified)
+
+\begin{frame}
+    \frametitle{Fully Specified Model Recovery}
+    \begin{center}
+    \includegraphics[width = \textwidth]{./ch3/plots/simulated_reg}
+    \end{center}
+\end{frame} % Fully Specified Model Recovery
+
+\begin{frame}
+    \frametitle{A More Sensible Model}
+    \begin{itemize}
+        \item Overload $\bm{x}_{nd}$, the parameters of observation $n$ at location $d$ as
+        \begin{description}
+            \item[$\bm{x}_{n,\text{obs}}$] Parameters of $n$th storm (scaled)
+            \item[$\bm{x}_{d,\text{loc}}$] Information pertaining to $d$th location 
+                (lat., lon., elevation)
+            \item[$\bm{x}_{nd,\text{int}}$] Any interaction thereof.  
+                Currently distance to eye at landfall.
+        \end{description}
+        \item Then $\bm{\theta}$ has dimensionality $5 + 3 + 1 = 9$
+        \item Location random effect $\varepsilon_d$
+        \item The Model:
+        \[
+            \bm{y}_n \sim \mathcal{PG}\left(\bm{y}\mid g(\bm{x}_n^T\bm{\theta}_n 
+                + \bm{\varepsilon}), \bm{1}\right)
+            \hspace{1.5cm}
+            \varepsilon_d \sim \mathcal{N}\left(\varepsilon\mid 0, 
+                \sigma_{\varepsilon}^2\right)
+        \]
+        \item Model fitted via MCMC.
+    \end{itemize}
+\end{frame} % SLOSH Regression Model
+
+\subsubsection{Conditional Survival Probability (Regression Style)}
+
+\begin{frame}
+    \frametitle{Conditional Survival Curves}
+    \begin{center}
+        \includegraphics[height=0.99\frametextheight]{./ch3/plots/condsurv_reg/condsurv_reg_1d_std}
+    \end{center}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Anomaly Detection Results (Simulated Data)}
-  \begin{center}
-    \include{table_ad_sim_results}
-  \end{center}
+    \frametitle{Conditional Survival Surfaces}
+    \begin{center}
+        \includegraphics[height=0.99\frametextheight]{./ch3/plots/condsurv_reg/condsurv_reg_2d_std}
+    \end{center}
 \end{frame}
 
-\section[Scaling]{Scaling to higher dimensions}
-
-\begin{frame}
-  \frametitle{Scaling to Higher Dimensions}
-  \begin{itemize}
-    \item Compuitational advances in modelling
-      \begin{itemize}
-        \item Variational Bayes~\citep{green2015}
-      \end{itemize}
-    \item Maintaining Model Fidelity at Scale
-      \begin{itemize}
-        \item Gaussian Mixture prior on $\log\alpha$
-        \item $\eta$-Cones~\citep{goix2017}
-      \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Scale - Mixture of Gammas Prior}
-  \begin{itemize}
-    \item $\eta \subset \lbrace 1,\ldots,d\rbrace$.  Define the $\eta$-Cone:
-      \begin{equation*}
-        \mathcal{C}_{\eta} = \left\lbrace \bm{z} : z_l > 0 \text{ for }l\in\eta;
-                              \hspace{0.2cm} z_l = 0 \text{ for }l\not\in\eta\right\rbrace
-      \end{equation*}
-    \pause
-    \item Gamma models do not have support at 0--$\epsilon$-thickened cones
-      \begin{equation*}
-        \mathcal{C}_{\eta}^{(\epsilon)} = \left\lbrace \bm{z} : z_l \geq \epsilon
-          \text{ for }l\in\eta; \hspace{0.2cm} z_l = 0 \text{ for }l\not\in\eta\right\rbrace
-      \end{equation*}
-    \pause
-    \item How does this help us?
-      \begin{itemize}
-        \item For Gamma models, $\alpha < 1$ $\implies$ mass near 0
-        \item A mixture of gammas for $\alpha_l$:
-          \begin{equation*}
-            \alpha_l \sim I_{l\in\eta}\text{Ga}(\alpha_l\mid a_1, 1)
-                        + I_{l\not\in\eta}\text{Ga}(\alpha_l\mid a_0, 1)
-          \end{equation*}
-          with $\alpha_0 < 1$, $\alpha_1 > 1$
-      \end{itemize}
-  \end{itemize}
-\end{frame}
+\subsection{Conclusion}
 
 \section{Conclusion}
 
 \subsection{Summary}
 
 \begin{frame}
-  \frametitle{Conclusion}
-  \begin{itemize}
-    \item Developed a means of describing the dependence structure of the multivariate Pareto
-    \item Demonstrated inherent difficulty in distribution on $\mathcal{S}_{\infty}^{d-1}$
-      \begin{itemize}
-        \item developed a means of model comparison on the space
-      \end{itemize}
-    \item Applied models to IVT data
-      \begin{itemize}
-        \item Pairwise Extremal Dependence Coefficients
-        \item Conditional Survival Curves
-      \end{itemize}
-    \item Anomaly Detection (Preliminary)
-    \item Modelling at Scale (on the horizon)
-  \end{itemize}
+    \frametitle{BNP Inference for Multivariate PoT Models}
+    \begin{itemize}
+        \item Explored separation of inference for angular and radial components
+        \item Introduced a means of model selection using 
+        \item Introduced the projected gamma distribution as an angular distribution
+        \item Used projected gamma as the kernel of a BNP mixture angular data model
+        \item Used this angular data model to infer the dependence structure of geographical
+            regions in the integrated vapor transport, an atmospheric river over California.
+    \end{itemize}
 \end{frame}
-
-\subsection{Timeline}
 
 \begin{frame}
-    \frametitle{Timeline}
-    \begin{center}
-        \includegraphics[width=\textwidth]{./images/timeline}
-    \end{center}
+    \frametitle{Anomaly Detection in PoT Settings and Angular Representations of Categorical Data}
+    \begin{itemize}
+        \item Separation of angular and radial anomaly scores for extreme data
+        \item Angular anomaly scores based on posterior-predictive density
+        \item A categorical data model
+        \begin{itemize}
+            \item Angular representation of categorical data
+            \item Novelty scores based on said angular representation
+        \end{itemize}
+        \item A \emph{mixed} data model
+        \begin{itemize}
+            \item Novelty scores---independent or combined regimes
+        \end{itemize}
+        \item Scores are performant on canonical datasets relative to canonical methods
+        \begin{itemize}
+            \item Dependent on the concentration of \emph{anomalous} events in training data---less is better
+        \end{itemize}
+    \end{itemize}
 \end{frame}
+
+\begin{frame}
+    \frametitle{Extremal Dependence of Storm Surge Using a PoT Model}
+\end{frame}
+
+\subsection{Problems and Solutions}
+
+\begin{frame}
+    \frametitle{Problems}
+    \begin{itemize}
+        \item Edge-seeking behavior of gamma family
+        \item Convergence towards a single cluster with $\bm{\alpha}_{\jmath} \to \bm{0}$
+        \item Mean Field Variational Bayes inadequate for BNP mixture weights
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Solutions}
+    \begin{itemize}
+        \item Variational-within-Gibbs approach \cite{Loaizamaya2022}
+        \begin{itemize}
+            \item Gibbs-sampling stick-breaking weights, cluster ID's
+            \item VI for cluster parameters
+        \end{itemize}
+        \item Conditioning the transformation on 
+            $\argmax\limits_{d \in \lbrace 1,\ldots, D\rbrace} Z_d$
+        \item Restricting cluster shapes such that $\vee_{d = 1}^D\; \alpha_d > 1$
+        \item Zero-inflated / Sparse Projected Gamma
+    \end{itemize}
+\end{frame}
+
+
+\subsection{Summary and Conclusion}
+
+
+
+
 
 
 \begin{frame}[plain]
     \begin{center}
-        \includegraphics[height=0.7\frametextheight]{./images/fin}
+        \includegraphics[height=0.7\frametextheight]{./ch1/images/fin}
     \end{center}
-\end{frame}
+\end{frame} % Fin 
 
 \begin{frame}[allowframebreaks]
     \frametitle{References}
@@ -778,223 +1438,137 @@
     \bibliography{./refs}
 \end{frame}
 
-
 \appendix
 
 \section*{Appendix}
 
-\subsection*{IVT}
+\subsection*{Simulation Study Details}
+
 \begin{frame}
-    \frametitle{IVT Grid}
-    \begin{minipage}{.49\textwidth}
-    \centering
-    \includegraphics[height=\frametextheight]{./images/grid_8}
-  \end{minipage}
-  \begin{minipage}{.49\textwidth}
-    \centering
-    \includegraphics[height=\frametextheight]{./images/grid_47}
-  \end{minipage}
-\end{frame}
+    \label{pgpareto:simstudydetails}
+    \frametitle{Simulation Study}
+    \begin{itemize}
+        \item Finite mixture of Gammas
+        \item For each Number of Mixture Components (3,6,9,12):
+            \begin{itemize}
+                \item Generate a data-set of 20 columns
+                \item output subsets of $D = 3,6,12,20$ columns projected 
+                    onto $\mathcal{S}_{\infty}^{D-1}$.
+                \item Cross-Validated:
+                    \begin{itemize}
+                        \item Fit angular data models to projected data
+                        \item Calculate average energy score of posterior 
+                            predictive against out-of-sample set.
+                    \end{itemize}
+            \end{itemize}
+    \end{itemize}
+    \hyperlink{pgpareto:simstudy}{\beamerbutton{Simulation Study Results}}
+\end{frame} % Simulation Study Details
 
 \subsection*{Projection onto $\mathcal{S}_p^{d-1}$}
+
 \begin{frame}
   \frametitle{Jacobian}
+  \label{pgpareto:jacobian}
   \begin{equation*}
     \begin{bmatrix}
       y_1 & r & 0 & \ldots & 0\\
       y_2 & 0 & r & \ldots & 0\\
       \vdots & \vdots & \vdots & \ddots & \vdots\\
-      y_{d-1} & 0 & \ldots & 0 & r \\
-      \left(1 - {\scriptsize\sum_{l=1}^{d-1}}y_l^p\right)^{1/p} &
-        - ry_1^{p-1}\phi & -ry_2^{p-1}\phi & \cdots & -ry_{d-1}\phi
+      y_{D-1} & 0 & \ldots & 0 & r \\
+      \left(1 - {\scriptsize\sum_{d=1}^{D-1}}y_d^p\right)^{\frac{1}{p}} &
+        - ry_1^{p-1}\phi & -ry_2^{p-1}\phi & \cdots & -ry_{D-1}\phi
     \end{bmatrix}
   \end{equation*}
-  where $\phi = \left(1 - {\scriptsize\sum_{l=1}^{d-1}}y_l^p\right)^{1/p - 1}$
-  \pause
+  where $\phi = \left(1 - {\scriptsize\sum_{d=1}^{D-1}}y_d^p\right)^{\frac{1}{p} - 1}$
+  %\pause
   \begin{equation*}
-  \lvert J \rvert = r^{d-1}\left[\left(1 - {\textstyle\sum}_{l = 1}^{d-1}y_l^p\right)^{\frac{1}{p}} +
-      {\textstyle\sum}_{l = 1}^{d-1}y_l^p\left(1 - {\textstyle\sum}_{l=1}^{d-1}
-          y_l^p\right)^{\frac{1}{p} - 1}\right]
+  \lvert J \rvert = r^{d-1}\left[\left(1 - {\textstyle\sum}_{d = 1}^{D-1}y_d^p\right)^{\frac{1}{p}} +
+      {\textstyle\sum}_{d = 1}^{D-1}y_d^p\left(1 - {\textstyle\sum}_{d=1}^{D-1}
+          y_d^p\right)^{\frac{1}{p} - 1}\right]
   \end{equation*}
 \end{frame} % Unit Sphere - Jacobian
 
-
-\subsection*{Projected Gamma Models}
-
-\subsection*{Finite Mixture of Projected Gammas}
-\begin{frame}
-  \frametitle{Finite Mixture Model}
-  \begin{equation*}
-    \begin{aligned}
-      \bm{ y}_i &\sim \sum_{j = 1}^J\pi_j\text{PG}\left(\bm{ y}\mid \bm{ \alpha}_j, \bm{ \beta}_j\right)\\
-      \bm{ \alpha}_j &\sim {\textstyle \prod}_{l = 1}^d \text{Ga}\left(\alpha_l\mid\xi_l,\tau_l\right)\\
-      \bm{ \beta}_j &\sim {\textstyle \prod}_{l = 2}^d \text{Ga}\left(\beta_l\mid\zeta_l,\sigma_l\right)
-    \end{aligned}
-    \hspace{2cm}
-    \begin{aligned}
-      \bm{ \xi},\bm{\tau} &\sim {\textstyle \prod}_{l = 1}^d \text{Ga}(\xi_l\mid a,b)
-                \times \text{Ga}(\tau_l\mid c,d)\\
-      \bm{ \zeta},\bm{\sigma} &\sim {\textstyle\prod}_{l = 2}^d\text{Ga}(\zeta_l \mid a,b)
-              \times \text{Ga}(\sigma_l\mid c,d)\\
-      \bm{ \pi} &\sim \text{Dir}(\pi_0)
-    \end{aligned}
-  \end{equation*}
-\end{frame} % Projected Gamma - Finite Mixture Model
-
-\begin{frame}
-  \frametitle{Dirichlet Process Mixture Model}
-  \begin{equation*}
-    \begin{aligned}
-      \bm{ y}_i &\sim \sum_{j = 1}^{\infty}\pi_j\text{PG}\left(\bm{ y}\mid \bm{ \alpha}_j, \bm{ \beta}_j\right)\\
-      (\alpha_j,\beta_j) &\sim \text{DP}\left(\eta, G_0\right)\\
-      &~\hspace{-1cm}G_0 = {\textstyle\prod}_{l = 1}^d\text{Ga}\left(\alpha_{jl}\mid\xi_{l},\tau_{l}\right)\\
-      &~\hspace{0.5cm}\times{\textstyle\prod}_{l=2}^d\text{Ga}\left(\beta_{jl}\mid\zeta_{l}\tau_{l}\right)
-    \end{aligned}
-    \hspace{1cm}
-    \begin{aligned}
-      \bm{ \xi},\bm{ \tau} &\sim {\textstyle \prod}_{l = 1}^d \text{Ga}(\xi_l\mid a,b)
-              \times \text{Ga}(\tau_l\mid c,d)\\
-      \bm{ \zeta},\bm{\sigma} &\sim {\textstyle\prod}_{l = 2}^d\text{Ga}(\zeta_l \mid a,b)
-              \times \text{Ga}(\sigma_l\mid c,d)\\
-      \bm{ \eta} &\sim \text{Ga}(\eta \mid 2, 0.1).
-    \end{aligned}
-  \end{equation*}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Log-normal Prior for Shape Parameters}
-  \begin{equation*}
-    \begin{aligned}
-      \bm{ y}_i &\sim \sum_{j = 1}^{\infty}\pi_j\text{PG}\left(\bm{ y}\mid \bm{ \alpha}_j, \bm{\beta}_j\right)\\
-      (\bm{\alpha}_j, \bm{\beta}_j) &\sim \text{DP}\left(\eta, G_0\right)\\
-        &~\hspace{-1cm}G_0 = \mathcal{N}\left(\log\bm{ \alpha}_{j}\mid\mu,\Sigma\right)\\
-        &~\hspace{0.5cm}\times
-            {\textstyle\prod}_{l = 2}^d\text{Ga}\left(\beta_{jl}\mid\zeta_l,\sigma_l\right)
-    \end{aligned}
-    \hspace{1cm}
-    \begin{aligned}
-      \mu,\Sigma &\sim \mathcal{N}\left(\mu\mid\mu_0,\Sigma_0\right)
-                                  \times \text{IG}\left(\nu,\Psi\right)\\
-      \bm{ \zeta},\bm{\sigma} &\sim {\textstyle\prod}_{l = 2}^d\text{Ga}(\zeta_l \mid a,b)
-                                \times \text{Ga}(\sigma_l \mid c,d) \\
-      \bm{ \eta} &\sim \text{Ga}(\eta \mid 2, 0.1).
-    \end{aligned}
-  \end{equation*}
-\end{frame}
-
 \subsection*{Projected Gamma Inference}
+
+\begin{frame}
+    \frametitle{Data Augmentation and Inference}
+    \label{pgpareto:projgammainference}
+    {\small 
+    \begin{itemize}
+        \item Sample $r\mid\bm{\alpha},\bm{\beta},\bm{y}$
+        \[
+            r\mid\bm{\alpha},\bm{\beta},\bm{y} \sim 
+                \text{Ga}\left(r_i\mid \sum_{d = 1}^D \alpha_d, 
+                    \sum_{d = 1}^D\beta_dy_d\right)
+        \]
+        %\pause
+        \item Given $r$, the Likelihood
+        \[
+        L(\bm{\alpha},\bm{\beta}\mid \bm{r},\bm{y}) 
+            \propto \prod_{n = 1}^N\prod_{d = 1}^D
+            \text{Ga}\left(r_ny_{nd}\mid\alpha_d,\beta_d\right),
+        \]
+        %\pause
+        becomes separable by dimension.
+        \[
+        L(\alpha_d,\beta_d) \propto 
+            \prod_{n = 1}^N\text{Ga}\left(r_ny_{nd}\mid\alpha_d,\beta_d\right)
+        \]
+        %\pause
+        \item With appropriate choice of prior, inference can be parallelized.
+    \end{itemize}
+    }
+    \hyperlink{pgpareto:projectedgamma}{\beamerbutton{Projected Gamma}}
+\end{frame} % Data Augmentation and Inference
+
+
 \begin{frame}
   \frametitle{Projected Gamma Model - Inference}
+  \label{pgpareto:pginference}
   \begin{itemize}
-    \item Full conditional for $\beta_l$
+    \item Full conditional for $\beta_d$
       \begin{equation*}
-        \beta_l\mid \bm{ y}, r, \alpha_l \sim \text{Ga}\left(n\alpha_l + \zeta_l,
-                {\textstyle \sum}_{i = 1}^nr_iy_{il} + \sigma_l\right)
+        \beta_d\mid \bm{ y}, r, \alpha_d \sim \text{Ga}\left(n\alpha_d + \zeta_d,
+                {\textstyle \sum}_{n = 1}^Nr_ny_{nd} + \sigma_d\right)
       \end{equation*}
-    \pause
-    \item Posterior for $\alpha_l$
+    %\pause
+    \item Posterior for $\alpha_d$
       \begin{equation*}
-        f(\alpha_l \mid \bm{ y}, r) \propto
-          \frac{\left({\textstyle \prod}_{i = 1}^nr_iy_{il}\right)^{\alpha_l - 1}}{
-            \Gamma^n(\alpha_l)} \times \alpha_l^{\xi_l - 1}\exp\{-\tau_l\alpha_l\} \times
-            \frac{\Gamma(n\alpha_l + \zeta_l)}{
-            \left({\textstyle\sum}_{i = 1}^n r_iy_{il} + \sigma_l
-                  \right)^{(n * \alpha_l + \zeta_l)}}
+        f(\alpha_d \mid \bm{ y}, r) \propto
+          \frac{\left({\textstyle \prod}_{n = 1}^Nr_ny_{nd}\right)^{\alpha_d - 1}}{
+            \Gamma^N(\alpha_d)} \times \alpha_d^{\xi_d - 1}\exp\{-\tau_d\alpha_d\} \times
+            \frac{\Gamma(N\alpha_d + \zeta_d)}{
+            \left({\textstyle\sum}_{n = 1}^N r_ny_{nd} + \sigma_d
+                  \right)^{(N\alpha_d + \zeta_d)}}
       \end{equation*}
-    \pause
-    \item If $\beta_l = 1$, then
+    %\pause
+    \item If $\beta_d = 1$, then
     \begin{equation*}
-      f(\alpha_l \mid \bm{ y}, r) \propto
-        \frac{\left({\textstyle\prod}_{i = 1}^n r_iy_{il}\right)^{\alpha_l - 1}}{\Gamma^n(\alpha_l)} \times
-        \alpha_l^{\xi_1 - 1}\exp\{-\tau_1\alpha_l\}
+      f(\alpha_d \mid \bm{ y}, r) \propto
+        \frac{\left({\textstyle\prod}_{n = 1}^N r_ny_{nd}\right)^{\alpha_d - 1}}{\Gamma^N(\alpha_d)} \times
+        \alpha_d^{\xi_d - 1}\exp\{-\tau_d\alpha_d\}
     \end{equation*}
   \end{itemize}
-\end{frame}
-
-
-
-\subsection*{Alternative forms of model comparison}
-\begin{frame}
-  \frametitle{Kullbeck Liebler Divergence}
-  \begin{itemize}
-    \item KL Divergence
-      \begin{equation*}
-        D_{\text{KL}}(A,B) = \int_{x\in \Omega(A)}A(x)\log\left(\frac{A(x)}{B(x)}\right)\text{d}x
-      \end{equation*}
-      requires an estimate of density.
-    \pause
-    \item We have demonstrated the difficulty of establishing density.  Approximate
-      \begin{equation*}
-      D_{\text{KL}}^{(k)}(A,B) = \log\frac{n(B)}{n(A)} + c(A) \left[\rho_A^{(k)}(B)
-                                                      - \rho_A^{(k)}(A)\right]
-      \end{equation*}
-  \end{itemize}
-\end{frame} % KL Divergence (Introduction)
-
-
-\subsection*{Alternative Geometries}
-\begin{frame}
-  \frametitle{Alternative Geometries}
-  \small
-  \begin{itemize}
-    \item Coordinate system to describe $\mathcal{S}_p^{d-1}$ in $\omega^{d-1}$
-    \item $\mathcal{L}_1$: Log-ratios \citep{aitchison1982}:
-        \begin{equation*}
-            \mathcal{S}_1^{d-1} \rightarrow (-\infty,\infty)^{d-1}\hspace{8cm}~
-        \end{equation*}
-    \item $\mathcal{L}_2$: Spherical Coordinates \citep{nunez2019}: 
-        \begin{equation*}
-            \mathcal{S}_2^{d-1} \rightarrow [0,\pi/2]^{d-1}\hspace{8cm}~
-        \end{equation*}
-        \vspace{-0.5cm}
-      \begin{equation*}
-        \begin{aligned}
-        \theta_l &= \cos^{-1}\left(\frac{y_l}{\lVert \bm{y}_{l:d}\rVert_2}\right)\\
-        &\hspace{0.75cm}\text{for }l = 1,\ldots,d-1
-        \end{aligned}
-        \hspace{1cm}
-        \begin{aligned}
-          y_1 &= \cos\theta_1\\
-          y_l &= \left[{\textstyle\prod}_{k = 1}^{l-1}\sin\theta_k\right]\cos\theta_l\\
-          &\hspace{0.75cm}\text{for }l = 2,\ldots,d-1\\
-          y_d &= {\textstyle\prod}_{k = 1}^{d-1}\sin\theta_k
-        \end{aligned}
-      \end{equation*}
-  \end{itemize}
-\end{frame}
-\begin{frame}
-  \frametitle{Probit-Normal}
-  Let $Q_i = \text{Probit}(2\theta_i / \pi)$, for $i = 1,\ldots,d-1$
-  \begin{equation*}
-    \begin{aligned}
-                Q_i &\sim \mathcal{N}_{d-1}\left(\bm{\mu}_i, \Sigma_i\right)\\
-    \bm{\mu}_i, \Sigma_i &\sim \text{DP}(\eta, G_0)\\
-                    &\hspace{-1cm}G_0 =
-                      \mathcal{N}_{d-1}(\bm{\mu}_i\mid\bm{\mu}_0,\Sigma_0)\times \text{IW}(\Sigma_i\mid\nu,\Psi)
-    \end{aligned}
-    \hspace{1cm}
-    \begin{aligned}
-              \mu_0 &\sim \mathcal{N}_{d-1}\left(\bm{u},\bm{S}\right)\\
-           \Sigma_0 &\sim \text{IW}(\nu_0,\Psi_0)\\
-               \eta &\sim \text{Ga}(\alpha, \beta)
-    \end{aligned}
-  \end{equation*}
+  \hyperlink{pgpareto:angulardatamodel}{\beamerbutton{Angular Data Model}}
 \end{frame}
 
 \subsection*{Negative Definite Kernel}
+
 \begin{frame}
     \frametitle{Negative Definite Kernel - Proof}
+    \label{pgpareto:negdefkernel}
     \begin{itemize}
         \item In the first case, where $\bm{a}$ and $\bm{b}$ $\rightarrow$ Euclidean distance. 
         \item In the second case, $\bm{a}$ and $\bm{b}$ reside on separate
   faces.  
   \begin{itemize}
-      \item $c$ is unique, $\pnorm{\bm{c} - \bm{a}}{2} = \pnorm{\bm{a} - \bm{c}}{2}$ $\rightarrow$ symmetry in the arguments.
+      \item $c$ is unique, $\lVert\bm{c} - \bm{a}\rVert_2 = \lVert\bm{a} - \bm{c}\rVert_2$ $\rightarrow$ symmetry in the arguments.
       \item Then for the other property of negative definiteness
   \begin{equation*}
     \begin{aligned}
-      \sum_{i = 1}^n\sum_{j = 1}^n \alpha_i\alpha_j g(\bm{x}_1,\bm{x}_2) &= \sum_{i = 1}^n\sum_{j = 1}^n \alpha_i\alpha_j \bigg[\pnorm{\bm{c} - \bm{x}_1}{2} + \pnorm{\bm{x}_2 - \bm{c}}{2}\bigg]\\
-      &= \sum_{i = 1}^n\sum_{j = 1}^n \alpha_i\alpha_j\pnorm{\bm{c} - \bm{x}_1}{2} + \sum_{i = 1}^n\sum_{j = 1}^n \alpha_i\alpha_j\pnorm{\bm{x}_2 - \bm{c}}{2}
+      \sum_{i = 1}^n\sum_{j = 1}^n \alpha_i\alpha_j g(\bm{x}_1,\bm{x}_2) &= \sum_{i = 1}^n\sum_{j = 1}^n \alpha_i\alpha_j \bigg[\lVert\bm{c} - \bm{x}_1\rVert_2 + \lVert\bm{x}_2 - \bm{c}\rVert_2\bigg]\\
+      &= \sum_{i = 1}^n\sum_{j = 1}^n \alpha_i\alpha_j\lVert\bm{c} - \bm{x}_1\rVert_2 + \sum_{i = 1}^n\sum_{j = 1}^n \alpha_i\alpha_j\lVert\bm{x}_2 - \bm{c}\rVert_2
     \end{aligned}
   \end{equation*}
   which is less than or equal to $0$ in both terms
@@ -1002,68 +1576,143 @@
   \end{itemize}
 \end{frame}
 
-\subsection*{Simulation - Alternative Model Selection Criteria}
-
-
-\begin{frame}
-  \frametitle{Simulation - KL Divergence}
-  \begin{center}
-    \includegraphics[height=\frametextheight]{./images/simulation_knn_kld}
-  \end{center}
-\end{frame}
-
-\subsection*{IVT - Alternative Selection Criteria}
-
-\begin{frame}
-  \frametitle{IVT - KL Divergence}
-  \begin{center}
-    \includegraphics[height=\frametextheight]{./images/knn_kld}
-  \end{center}
-\end{frame}
-
 \subsection*{Conditional Survival}
+
+\begin{frame}
+  \frametitle{Conditional Survival Function}
+  \begin{prop}
+      In one dimension, the conditional survival function can be calculated as
+    \[
+        \mathbb{P}\left[Z_l > z_l\mid \bm{Z}_{\neg(l)} > \bm{z}_{\neg(l)}\right] =
+        \frac{\mathbb{E}\left[\bigwedge_{k = 1}^d \frac{V_k}{z_k}\right]}{
+                      \mathbb{E}\left[\bigwedge_{k \neq l}\frac{V_k}{z_k}\right]}
+    \]
+      where $\bm{V} = \bm{Z}\,/\,\lVert\bm{Z}\rVert_{\infty}$.
+  \end{prop}
+\end{frame} % Conditional Survival - Introduction
 
 \begin{frame}
   \frametitle{Conditional Survival Function - Proof}
   {\small
   \begin{equation*}
     \label{eqn:condsurv1d}
-    \text{P}\left[Z_l > z_l\mid \bm{Z}_{-(l)} > \bm{z}_{-(l)}\right] =
-      \frac{\text{P}\left[\cap_{k = 1}^d Z_k > z_k\right]}{\text{P}\left[\cap_{k \neq l} Z_k > z_k\right]}.
+    \mathbb{P}\left[Z_l > z_l\mid \bm{Z}_{-(l)} > \bm{z}_{-(l)}\right] =
+      \frac{\mathbb{P}\left[\cap_{k = 1}^d Z_k > z_k\right]}{\mathbb{P}\left[\cap_{k \neq l} Z_k > z_k\right]}.
   \end{equation*}
-  \pause
-  $R = \pnorm{\bm{Z}}{\infty}$, $\bm{V} = \frac{\bm{Z}}{R}$, such that
+  %\pause
+  $R = \lVert\bm{Z}\rVert_{\infty}$, $\bm{V} = \frac{\bm{Z}}{R}$, such that
     $\bm{V}\in \mathcal{S}_{\infty}^{d-1}$.  Then $\bm{Z} = R\bm{V}$.
   \begin{equation*}
-    \text{P}\left(\cap_{k = 1}^d Z_k > z_k\right) = \text{P}\left(\cap_{k = 1}^d RV_k > z_k\right)
+    \mathbb{P}\left(\cap_{k = 1}^d Z_k > z_k\right) = \mathbb{P}\left(\cap_{k = 1}^d RV_k > z_k\right)
   \end{equation*}
-  \pause
-  Recall, for standard Pareto, $\text{P}(R > r) = 1\wedge\frac{1}{r}$.
+  %\pause
+  Recall, for standard Pareto, $\mathbb{P}(R > r) = 1\wedge\frac{1}{r}$.
   \begin{equation*}
-    \text{P}\left[\bigcap_{k = 1}^d R > \frac{z_k}{v_k}\right] =
-      \text{P}\left[R  > \bigvee_{k=1}^d\frac{z_k}{V_k}\right] =
-      \text{E}\left[1 \bigwedge \left(\bigvee_{k = 1}^d\frac{z_k}{V_k}\right)^{-1}\right]
+    \mathbb{P}\left[\bigcap_{k = 1}^d R > \frac{z_k}{v_k}\right] =
+      \mathbb{P}\left[R  > \bigvee_{k=1}^d\frac{z_k}{V_k}\right] =
+      \mathbb{E}\left[1 \bigwedge \left(\bigvee_{k = 1}^d\frac{z_k}{V_k}\right)^{-1}\right]
   \end{equation*}
   $V_k \in [0,1]$; $z_k > 1$ (for the region of interest) $\implies$ $\frac{z_k}{V_k} > 1$
   }
 \end{frame}
 
 \begin{frame}
-    \frametitle{Conditional Survival Function - Proof Cont.}
+    \frametitle{Conditional Survival Function - Proof (Cont.)}
     {\small 
   \begin{equation*}
-    \text{P}\left[\cap_{k = 1}^d Z_k > z_k\right] = \text{E}\left[\wedge_{k = 1}^d\frac{V_i}{z_i}\right].
+    \mathbb{P}\left[\cap_{k = 1}^d Z_k > z_k\right] = \mathbb{E}\left[\wedge_{k = 1}^d\frac{V_i}{z_i}\right].
   \end{equation*}
-  \pause
+  %\pause
   And similar for the denominator
   \begin{equation*}
-    \text{P}\left[Z_l > z_l\mid \bm{Z}_{\neg(l)} > \bm{z}_{\neg(l)}\right] =
-      \frac{\text{E}\left[\wedge_{k = 1}^d \frac{V_k}{z_k}\right]}{\text{E}\left[
+    \mathbb{P}\left[Z_l > z_l\mid \bm{Z}_{\neg(l)} > \bm{z}_{\neg(l)}\right] =
+      \frac{\mathbb{E}\left[\wedge_{k = 1}^d \frac{V_k}{z_k}\right]}{\mathbb{E}\left[
                 \bigwedge_{k \neq l}\frac{V_k}{z_k}\right]}
   \end{equation*}
   }
 \end{frame}
 
+\subsection*{Novelty Detection}
 
+\begin{frame}
+    \frametitle{Novelty Scores - Calculation}
+    \label{ndpg:noveltyscoresdetail}
+    {\footnotesize
+    \begin{enumerate}
+        \item[h$k$nn]
+        \[
+        \mathcal{S}_{n,\bm{\nu}}^{\text{h$k$nn}} = 
+            \frac{N\,\pi^{\frac{D-1}{2}}}{k\,\Gamma\left(\frac{D-1}{2} + 1\right)}
+            \;R_{k}\left(\tilde{\mathbb{E}}[\bm{\nu}_n]\right)^{D-1}
+        \]
+        %\pause 
+        \item[hkde]
+        \[
+        \mathcal{S}_{n,\bm{\nu}}^{\text{hkde}} = \mathbb{E}_{\bm{\nu}^*}\left[
+            \exp\left\lbrace
+            -\frac{1}{2}\left(
+            \frac{g(\tilde{\mathbb{E}}[\bm{\nu}_n], \bm{\nu}^*)}{\hat{h}}
+            \right)^2
+            \right\rbrace
+            \right]^{-1} \approx \left[\frac{1}{K}\sum_{k = 1}^{K}
+                \exp\left\lbrace-\frac{1}{2}\left(
+                \frac{g(\tilde{\mathbb{E}}[\bm{\nu}_n],\bm{\nu}_k^*)}{\hat{h}}
+                \right)^2\right\rbrace\right]^{-1}
+        \]
+        %\pause
+        \item[lhkde]
+        \[
+        \mathcal{S}_{n,\bm{\nu}}^{\text{lhkde}} = 
+            \mathbb{E}_{\bm{\nu}^*,\bm{\nu}_n}\left[
+            \exp\left\lbrace
+            -\frac{1}{2}\left(
+            \frac{g(\bm{\nu}_n, \bm{\nu}^*)}{\hat{h}}
+            \right)^2
+            \right\rbrace
+            \right]^{-1} \approx \left[
+                \frac{1}{K_{\bm{\nu}_n}K_{\bm{\nu}^*}}
+                \sum_{\jmath = 1}^{K_{\bm{\nu}_n}}\sum_{k = 1}^{K_{\bm{\nu}^*}}
+                \exp\left\lbrace-\frac{1}{2}
+                \left(\frac{g(\bm{\nu}_{n,\jmath},\bm{\nu}_{k}^*)}{\hat{h}}\right)^2
+                \right\rbrace
+                \right]^{-1}
+        \]
+        %\pause
+        \item[lskde]
+        \[
+        \mathcal{S}_{n,\bm{\pi}}^{\text{lskde}} = \mathbb{E}_{\bm{\pi}_i,\bm{\pi}^*}
+        \left[\exp\left\lbrace -\frac{1}{2}\left(
+            \frac{\lVert \bm{\pi}_n - \bm{\pi}^*\rVert_1}{\hat{h}}
+            \right)^2\right\rbrace
+        \right]
+        \approx 
+        \left[
+            \frac{1}{K_{\bm{\pi}^*}K_{\bm{\pi}_n}}\sum_{\jmath=1}^{K_{\bm{\pi}_n}}
+                \sum_{k=1}^{K_{\bm{\pi}^*}}\exp\left\lbrace
+            -\frac{1}{2}
+                \left(\frac{\lVert \bm{\pi}_{n\jmath} - \bm{\pi}_k^*\rVert}{\hat{h}}\right)^2
+            \right\rbrace
+        \right]^{-1}
+        \]
+    \end{enumerate}
+    }
+    \hyperlink{ndpg:noveltyscores}{\beamerbutton{Novelty Scores}}
+\end{frame} % Categorical Anomaly Scores
+
+\subsection*{At Scale}
+
+\begin{frame}
+    \frametitle{Conditional Survival Curves (Regression, Real)}
+    \begin{center}
+        \includegraphics[height=0.99\frametextheight]{./ch3/plots/condsurv_reg/condsurv_reg_1d_real}
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Conditional Survival Surfaces (Regression, Real)}
+    \begin{center}
+        \includegraphics[height=0.99\frametextheight]{./ch3/plots/condsurv_reg/condsurv_reg_2d_real}
+    \end{center}
+\end{frame}
 
 \end{document}
