@@ -917,16 +917,25 @@
 \subsubsection{SLOSH}
 
 \begin{frame}
+    \frametitle{SLOSH, and locations}
+    \begin{center}
+    \includegraphics[height=\frametextheight]{./ch3/plots/slosh_combined}
+    \end{center}
+\end{frame} % SLOSH Locations
+
+\begin{frame}
     \frametitle{Sea, Lakes, and Overland Surges due to Hurricanes (SLOSH)}
+    \begin{minipage}{0.54\textwidth}
+    {\footnotesize
     \begin{itemize}
-        \item Simulations of storm surge given storm characteristics
-        \begin{description}
-            \item[Bearing] of storm eye at landfall
-            \item[Velocity] of storm eye at landfall
-            \item[Latitude] of storm eye at landfall
-            \item[Minimum Pressure] of storm
-            \item[Projected Sea Level Rise] over 100 years
-        \end{description}
+        \item Simulations of storm surge given storm characteristics \par
+        \begin{tabular}{cl}
+            \textit{bearing}  & Direction (Angle) of storm eye at landfall \\
+            \textit{velocity} & velocity of storm eye at landfall (kph)    \\
+            \textit{latitude} & latitude of storm eye at landfall (dd)     \\
+            \textit{pmin}     & Minimum atmospheric pressure of storm      \\
+            \textit{pslr}     & Projected sea-level-rise over 100 years    \\
+            \end{tabular}
         \item Each simulation an output grid
         \begin{itemize}
             \item \num{23119800} elements
@@ -935,28 +944,29 @@
         \item Parameters sampled via Latin hypercube
         \end{itemize}
     \end{itemize}
+    }
+    \end{minipage}%
+    ~
+    \begin{minipage}{0.44\textwidth}
+        {\footnotesize
+        \begin{itemize}
+            \item Intersect spatial grid with locations of interest
+            \item Sort locations by type
+            \item Create recursive subset \emph{slices} of data
+            \begin{center}
+            {\scriptsize
+            \input{./ch3/tables/datadesc}
+            }
+            \end{center}
+            
+            \vfill
+            
+            ~
+        \end{itemize}
+        
+        }
+    \end{minipage}
 \end{frame} % SLOSH Intro
-
-\begin{frame}
-    \frametitle{SLOSH, and locations}
-    \begin{center}
-    \includegraphics[height=\frametextheight]{./ch3/plots/slosh_combined}
-    \end{center}
-\end{frame} % SLOSH Locations
-
-\begin{frame}
-    \frametitle{Slices of SLOSH}
-    \begin{center}
-    \input{./ch3/tables/datadesc}
-    \end{center}
-\end{frame} % SLOSH datasets
-
-\begin{frame}
-    \frametitle{Threshold Trade-offs}
-    \begin{center}
-        \includegraphics[height = 0.99\frametextheight]{./ch3/plots/explore_threshold}
-    \end{center}
-\end{frame} % SLOSH Threshold Tradeoffs
 
 \begin{frame}
     \frametitle{Identified Sites in Delaware}
@@ -975,7 +985,10 @@
 \subsection{Methodology}
 
 \begin{frame}
-    \frametitle{Angular Model}
+    \frametitle{Angular Data Model}
+    {\small 
+    \begin{itemize}
+        \item The Model
         \[
         \begin{aligned}
                 \bm{y}_n \mid \bm{\alpha}_n &\sim
@@ -991,13 +1004,8 @@
                 \tau_{d} &\sim \mathcal{G}(\tau\mid c, d)
             \end{aligned}
         \]
-    where $\omega \in [0,1)$ is discount parameter, $\eta > -\omega$ is concentration parameter.
-\end{frame} % Angular Model
-
-\begin{frame}
-    \frametitle{}
-    \begin{itemize}
-        \item Cluster Probability Full Conditional
+        where $\omega \in [0,1)$ is discount parameter, $\eta > -\omega$ is concentration parameter.
+    \item Cluster Probability Full Conditional
         \[
         \mathbb{P}\left(\gamma_n = \jmath\mid \bm{y},\bm{\alpha},\bm{\rho}\right) = 
             \frac{\pi_\jmath\mathcal{PG}(\bm{y}_n\mid\bm{\alpha}_{\jmath})}{
@@ -1013,129 +1021,10 @@
         \]
         where $C_\jmath = \sum_{n = 1}^N\bm{1}_{\gamma_n = \jmath}$.
     \end{itemize}
-\end{frame} % Cluster Probability Full Conditional
-
-\subsubsection{Variational Inference}
-
-\begin{frame}
-    \frametitle{A Brief Review}
-    \begin{itemize}
-    \item The Goal
-        \[
-            q^*(\bm{\theta}) = \argmin_{q\in\mathcal{Q}}\left\lbrace
-            \text{KL}\left(q(\bm{\theta})||f(\bm{\theta}\mid\bm{x})\right) 
-            \coloneqq
-            \mathbb{E}_{q}\left[\log\left(
-            \frac{q(\bm{\theta})}{f(\bm{\theta}\mid\bm{x})}
-            \right)\right]
-            \right\rbrace.
-        \]
-    \item Mean Field Variational Bayes
-        \[
-            q_{\bm{\theta}} = \prod_{\ell \in L}
-                q_{\theta_{\ell}}(\theta_{\ell}\mid\psi_{\ell})
-        \]
-    \item Evidence Lower Bound (ELBO)
-        \[
-            \mathcal{L}(\bm{\theta}) = 
-                \mathbb{E}_q\left[\log f(\bm{x},\bm{\theta}) - 
-                \log q(\bm{\theta})\right] 
-            = \mathbb{E}_q[\log f(\bm{x},\bm{\theta})] - H,
-        \]
-    where $H$ is entropy of $q$.
-    \end{itemize}
-\end{frame} % Brief Review of VI
-
-\begin{frame}
-    \frametitle{Optimization Strategy}
-    \begin{itemize}
-    \item For given family $Q$, optimal $q^*$ means optimal parameter set 
-        $\bm{\psi}^*$ such that
-        \[
-            q^*(\bm{\theta}) = q(\bm{\theta}\mid\bm{\psi}^*)
-        \]
-    \item Compute the gradient
-        \[
-            \Delta_{\bm{\psi}} = \frac{\partial}{\partial \psi_{\ell}}
-                \left\lbrace\mathbb{E}_{q}\left[\log f(\bm{y}\mid\bm{\theta})\right] 
-                    - H(\bm{\psi})\right\rbrace
-                \;\;\text{ for }\ell = 1,\ldots,L
-        \]
-    and move towards optimal point $\Delta_{\bm{\psi}} = \bm{0}$.
-
-    The gradient isn't available in closed form in this model.
-    \item Reparametrization Gradient \cite{kingma2022}:
-        \begin{enumerate}
-            \item Take Samples of $\bm{\theta} = T(\bm{\psi}, \bm{\varepsilon})$ 
-                where $\varepsilon \stackrel{iid}{\sim} \mathcal{N}(0,1)$
-            \item Move differentiation w.r.t. $\bm{\psi}$ within expectation
-            \item Take expectation numerically.
-        \end{enumerate}
-    \end{itemize}
-\end{frame} % Optimization Strategy
-
-\begin{frame}
-    \frametitle{VB Initialization}
-    {\footnotesize
-    \begin{itemize}
-        \item Using the Adam Optimizer \cite{kingma2017}
-        %\pause
-        \item Still dependent on starting position
-        %\pause
-        \item Starting position strategies
-        %\pause
-        \begin{enumerate}
-            \item[Random] - Random init of cluster parameters and weights
-            %\pause
-            \item[Uniform] - Random init of cluster parameters, weights initialized such that
-            \[
-                \mathbb{E}[\bm{\rho}] = \left(\frac{1}{J},\frac{1}{J-1},\ldots,\frac{1}{3},\frac{1}{2}\right)
-                \rightarrow \mathbb{E}[\pi_j] = \left(\frac{1}{J},\ldots,\frac{1}{J}\right)
-            \]
-            %\pause
-            \item[Pregamed] - Abridged MCMC init of parameters
-            \begin{enumerate}
-                \item Random init cluster parameters, weights
-                \item Iterative (1) cluster ID's, weights, via Gibbs step
-                \item Iterative (2) Resample cluster parameters from initializing distribution
-                \item Set parameters:
-                \[
-                \begin{aligned}
-        q_{\alpha_{\jmath d}} &= 
-            \mathcal{LN}\left(\psi_{\alpha_{\jmath d \mu}} 
-                \coloneqq\log(\alpha_{\jmath d}) - 0.005,\; 
-                \psi_{\alpha_{\jmath d}\sigma} \coloneqq0.1\right)\\
-        q_{\rho_{\jmath}} &= \text{Logit}\mathcal{N}\left(
-        \psi_{\rho_{\jmath}\mu} \coloneqq\psi(\zeta_{\rho_{\jmath} 1}) - \psi(\zeta_{\rho_{\jmath} 2}), \;
-            \psi_{\rho_{\jmath}\sigma^2} \coloneqq\psi^{\prime}(\zeta_{\rho_{\jmath} 1}) +
-                \psi^{\prime}(\zeta_{\rho_{\jmath} 2})
-            \right)
-        \end{aligned}   
-                \]
-                where $\psi(\cdot)$ and $\psi^{\prime}(\cdot)$ are 
-                    digamma and trigamma functions, respectively.
-            \end{enumerate}
-        \end{enumerate}
-    \end{itemize}
     }
-\end{frame} % VB Initialization
-
-\begin{frame}
-    \frametitle{Model Fidelity for Initialization Strategies}
-    \begin{center}
-    \includegraphics[width = 0.99\textwidth]{./ch3/plots/energy_score}
-    \end{center}
-\end{frame} % VB Performance
+\end{frame} % Angular Model
 
 \subsubsection{Model Recovery}
-
-\begin{frame}
-    \frametitle{Extant Clusters}
-    \begin{center}
-        \input{./ch3/tables/extant_clusters}
-    \end{center}
-    {\footnotesize Counts of emergent clusters identified in data slices via posterior sampling.}
-\end{frame} % Extant Clusters
 
 \begin{frame}
     \frametitle{Marginally Assessing Model Fidelity}
@@ -1157,6 +1046,14 @@
         \includegraphics[height=0.99\frametextheight]{./ch3/plots/delaware_marginal_cdfs}
     \end{center}
 \end{frame} % Marginal Recovery of CDF (Plot)
+
+\begin{frame}
+    \frametitle{Extant Clusters}
+    \begin{center}
+        \input{./ch3/tables/extant_clusters}
+    \end{center}
+    {\footnotesize Counts of emergent clusters identified in data slices via posterior sampling.}
+\end{frame} % Extant Clusters
 
 \subsubsection{Conditional Survival Probability}
 
@@ -1329,39 +1226,31 @@
     \frametitle{Extremal Dependence of Storm Surge Using a PoT Model}
 \end{frame}
 
-\subsection{Problems and Solutions}
+\subsection{Looking Forward}
 
 \begin{frame}
-    \frametitle{Problems}
-    \begin{itemize}
-        \item Edge-seeking behavior of gamma family
-        \item Convergence towards a single cluster with $\bm{\alpha}_{\jmath} \to \bm{0}$
-        \item Mean Field Variational Bayes inadequate for BNP mixture weights
-    \end{itemize}
+    \frametitle{Problems and Solutions}
+    \begin{description}
+        \item[Problems]~ 
+            \begin{itemize}
+                \item Edge-seeking behavior of gamma family
+                \item Convergence towards a single cluster with $\bm{\alpha}_{\jmath} \to \bm{0}$
+                \item Mean Field Variational Bayes inadequate for BNP mixture weights
+            \end{itemize}
+        \item[Solutions]~
+            \begin{itemize}
+                \item Variational-within-Gibbs approach \cite{Loaizamaya2022}
+                \begin{itemize}
+                    \item Gibbs-sampling stick-breaking weights, cluster ID's
+                    \item VI for cluster parameters
+                \end{itemize}
+                \item Conditioning the transformation on 
+                    $\argmax\limits_{d \in \lbrace 1,\ldots, D\rbrace} Z_d$
+                \item Restricting cluster shapes such that $\vee_{d = 1}^D\; \alpha_d > 1$
+                \item Zero-inflated / Sparse Projected Gamma
+            \end{itemize}
+    \end{description}
 \end{frame}
-
-\begin{frame}
-    \frametitle{Solutions}
-    \begin{itemize}
-        \item Variational-within-Gibbs approach \cite{Loaizamaya2022}
-        \begin{itemize}
-            \item Gibbs-sampling stick-breaking weights, cluster ID's
-            \item VI for cluster parameters
-        \end{itemize}
-        \item Conditioning the transformation on 
-            $\argmax\limits_{d \in \lbrace 1,\ldots, D\rbrace} Z_d$
-        \item Restricting cluster shapes such that $\vee_{d = 1}^D\; \alpha_d > 1$
-        \item Zero-inflated / Sparse Projected Gamma
-    \end{itemize}
-\end{frame}
-
-
-\subsection{Summary and Conclusion}
-
-
-
-
-
 
 \begin{frame}[plain]
     \begin{center}
@@ -1754,6 +1643,128 @@
 \end{frame} % Categorical Anomaly Scores
 
 \subsection*{At Scale}
+
+\begin{frame}
+    \frametitle{Threshold Trade-offs}
+    \label{exapg:thresholdtradeoffs}
+    \begin{center}
+        \includegraphics[height = 0.99\frametextheight]{./ch3/plots/explore_threshold}
+    \end{center}
+\end{frame} % SLOSH Threshold Tradeoffs
+
+\subsubsection{Variational Inference}
+
+\begin{frame}
+    \frametitle{A Brief Review}
+    \label{exapg:variationalinferencereview}
+    \begin{itemize}
+    \item The Goal
+        \[
+            q^*(\bm{\theta}) = \argmin_{q\in\mathcal{Q}}\left\lbrace
+            \text{KL}\left(q(\bm{\theta})||f(\bm{\theta}\mid\bm{x})\right) 
+            \coloneqq
+            \mathbb{E}_{q}\left[\log\left(
+            \frac{q(\bm{\theta})}{f(\bm{\theta}\mid\bm{x})}
+            \right)\right]
+            \right\rbrace.
+        \]
+    \item Mean Field Variational Bayes
+        \[
+            q_{\bm{\theta}} = \prod_{\ell \in L}
+                q_{\theta_{\ell}}(\theta_{\ell}\mid\psi_{\ell})
+        \]
+    \item Evidence Lower Bound (ELBO)
+        \[
+            \mathcal{L}(\bm{\theta}) = 
+                \mathbb{E}_q\left[\log f(\bm{x},\bm{\theta}) - 
+                \log q(\bm{\theta})\right] 
+            = \mathbb{E}_q[\log f(\bm{x},\bm{\theta})] - H,
+        \]
+    where $H$ is entropy of $q$.
+    \end{itemize}
+\end{frame} % Brief Review of VI
+
+\begin{frame}
+    \frametitle{Optimization Strategy}
+    \begin{itemize}
+    \item For given family $Q$, optimal $q^*$ means optimal parameter set 
+        $\bm{\psi}^*$ such that
+        \[
+            q^*(\bm{\theta}) = q(\bm{\theta}\mid\bm{\psi}^*)
+        \]
+    \item Compute the gradient
+        \[
+            \Delta_{\bm{\psi}} = \frac{\partial}{\partial \psi_{\ell}}
+                \left\lbrace\mathbb{E}_{q}\left[\log f(\bm{y}\mid\bm{\theta})\right] 
+                    - H(\bm{\psi})\right\rbrace
+                \;\;\text{ for }\ell = 1,\ldots,L
+        \]
+    and move towards optimal point $\Delta_{\bm{\psi}} = \bm{0}$.
+
+    The gradient isn't available in closed form in this model.
+    \item Reparametrization Gradient \cite{kingma2022}:
+        \begin{enumerate}
+            \item Take Samples of $\bm{\theta} = T(\bm{\psi}, \bm{\varepsilon})$ 
+                where $\varepsilon \stackrel{iid}{\sim} \mathcal{N}(0,1)$
+            \item Move differentiation w.r.t. $\bm{\psi}$ within expectation
+            \item Take expectation numerically.
+        \end{enumerate}
+    \end{itemize}
+\end{frame} % Optimization Strategy
+
+\begin{frame}
+    \frametitle{VB Initialization}
+    {\footnotesize
+    \begin{itemize}
+        \item Using the Adam Optimizer \cite{kingma2017}
+        %\pause
+        \item Still dependent on starting position
+        %\pause
+        \item Starting position strategies
+        %\pause
+        \begin{enumerate}
+            \item[Random] - Random init of cluster parameters and weights
+            %\pause
+            \item[Uniform] - Random init of cluster parameters, weights initialized such that
+            \[
+                \mathbb{E}[\bm{\rho}] = \left(\frac{1}{J},\frac{1}{J-1},\ldots,\frac{1}{3},\frac{1}{2}\right)
+                \rightarrow \mathbb{E}[\pi_j] = \left(\frac{1}{J},\ldots,\frac{1}{J}\right)
+            \]
+            %\pause
+            \item[Pregamed] - Abridged MCMC init of parameters
+            \begin{enumerate}
+                \item Random init cluster parameters, weights
+                \item Iterative (1) cluster ID's, weights, via Gibbs step
+                \item Iterative (2) Resample cluster parameters from initializing distribution
+                \item Set parameters:
+                \[
+                \begin{aligned}
+        q_{\alpha_{\jmath d}} &= 
+            \mathcal{LN}\left(\psi_{\alpha_{\jmath d \mu}} 
+                \coloneqq\log(\alpha_{\jmath d}) - 0.005,\; 
+                \psi_{\alpha_{\jmath d}\sigma} \coloneqq0.1\right)\\
+        q_{\rho_{\jmath}} &= \text{Logit}\mathcal{N}\left(
+        \psi_{\rho_{\jmath}\mu} \coloneqq\psi(\zeta_{\rho_{\jmath} 1}) - \psi(\zeta_{\rho_{\jmath} 2}), \;
+            \psi_{\rho_{\jmath}\sigma^2} \coloneqq\psi^{\prime}(\zeta_{\rho_{\jmath} 1}) +
+                \psi^{\prime}(\zeta_{\rho_{\jmath} 2})
+            \right)
+        \end{aligned}   
+                \]
+                where $\psi(\cdot)$ and $\psi^{\prime}(\cdot)$ are 
+                    digamma and trigamma functions, respectively.
+            \end{enumerate}
+        \end{enumerate}
+    \end{itemize}
+    }
+\end{frame} % VB Initialization
+
+\begin{frame}
+    \frametitle{Model Fidelity for Initialization Strategies}
+    \begin{center}
+    \includegraphics[width = 0.99\textwidth]{./ch3/plots/energy_score}
+    \end{center}
+\end{frame} % VB Performance
+
 
 \begin{frame}
     \frametitle{Conditional Survival Curves (Regression, Real)}
