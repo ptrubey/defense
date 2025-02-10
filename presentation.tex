@@ -50,7 +50,7 @@
     Applications To Anomaly Detection}
 \author{Peter Trubey \\ Advisor: Bruno Sans{\'o}}
 \institute{Department of Statistics - UCSC}
-\date[2/??/2025]{February ??, 2025}
+\date[2/??/2025]{February 25, 2025}
 
 \begin{document}
 
@@ -64,7 +64,22 @@
 \end{frame}
 
 \section{Introduction}
+
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsection\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+
 \subsection{Extreme Value Theory}
+
+
 
 \begin{frame}
     \frametitle{A Brief Background}
@@ -148,7 +163,7 @@
     %\pause
     \item If $u$ sufficiently large, excesses above $u$ well approximated by Pareto.
     
-    Thus,\emph{Peaks-over-Threshold} analysis.
+    Thus, \emph{Peaks-over-Threshold} analysis.
     \end{itemize}
     }
 \end{frame} % Pickands-Balkema-de Haan
@@ -198,7 +213,7 @@
     \end{itemize}
 \end{frame} % Spectral Measure
 
-\section[Inferring Extremal Dependence]{BNP Inference for Multivariate PoT Models}
+\section[Multivariate PoT]{BNP Inference for Multivariate PoT Models}
 \subsection{Estimation of the Angular Measure}
 \begin{frame}
     \frametitle{Separation of Angular and Radial Components}
@@ -408,8 +423,10 @@
 
 \begin{frame}
     \frametitle{Comparing Model Fidelity on $\mathbb{S}_{\infty}^{D-1}$}
-    Energy Score~\cite{gneiting2007}
-    %\pause    
+    Energy Score~-~\cite{gneiting2007}
+    \label{pgpareto:energyscore}
+    \begin{minipage}{0.7\textwidth}
+    {\footnotesize 
     \begin{itemize}
     \item Generalization of \emph{Continuous Ranked Probability Score} 
         to multiple dimensions
@@ -433,54 +450,19 @@
     %\pause
     \item Upper bound on geodesic distance - Euclidean norm on 1d Rotation
     \end{itemize}
+    \vfill
+    }
+    \end{minipage}%
+    ~\hfill
+    \begin{minipage}{0.29\textwidth}
+    \begin{center}
+        \includegraphics[width=\textwidth]{ch1/images/1drot}
+    \end{center}
+    \hyperlink{pgpareto:notgeodesic}{\beamerbutton{Not Geodesic}}
+    \hyperlink{pgpareto:kerneldetails}{\beamerbutton{Kernel Details}}
+    
+    \end{minipage}
 \end{frame} % Model Comparison
-
-\begin{frame}
-    \frametitle{Not Geodesic Distance}
-    \begin{itemize}
-        \item Geodesic distance is length of shortest path from points $\bm{a}$ to $\bm{b}$.
-        \item $\mathbb{S}_1^{D-1}$ easy.  $\mathbb{S}_2^{D-1}$ more difficult. 
-            No simple closed form for $\mathbb{S}_{\infty}^{D-1}$
-        \item $\mathbb{S}_{\infty}^{D-1}$ easier\ldots and harder.
-        \begin{itemize}
-            \item All faces are pairwise adjacent.
-            \item A \emph{net} is an unfolding of a geometric figure.  
-            \item Shortest path corresponds to straight line on appropriate net.
-            \item $D!$ possible nets.  But $\sum_{d = 1}^{D-2}\binom{D-2}{d}$ 
-                possible distinct paths.  Still too much.
-        \end{itemize}
-    \end{itemize}
-\end{frame} % Not geodesic distance 
-
-\begin{frame}
-    \frametitle{Upper Bound on Geodesic Distance on $\mathbb{S}_{\infty}^{D-1}$}
-    \begin{itemize}
-        \item Let $\mathbb{C}_e^{D-1} = \left\lbrace\bm{v} : \bm{v} \in 
-            \mathbb{S}_{\infty}^{D-1},\;\bm{v}_e = 1\right\rbrace$.
-        %\pause
-        \item Let $\bm{a}\in \mathbb{C}_d^{D-1}$, $\bm{b}\in\mathbb{C}_e^{D-1}$, and
-            $\mathbb{C}_{de}^{D-2} = \mathbb{C}_d^{D-1}\cap \mathbb{C}_e^{D-1}$
-            for $d,e\in \lbrace 1,\ldots,D\rbrace$.
-            \[
-            g(\bm{a},\bm{b}) = \begin{cases}
-                \min\limits_{\bm{c}\in\mathbb{C}_{de}^{D-2}}\lVert \bm{c} - \bm{a}\rVert_2 + 
-                    \lVert \bm{b} - \bm{c}\rVert_2 &\text{ for }d\neq e\\
-            \lVert \bm{a} - \bm{b}\rVert_2 &\text{ otherwise}
-            \end{cases}
-            \]
-        %\pause
-        \item A Computationally Efficient Form
-        \[
-            g(\bm{a},\bm{b}) = \lVert \bm{a} - \bm{b}^{\prime}\lVert_2 
-            \text{ where }\bm{b}^{\prime} = \begin{cases}
-                b_i &\text{ for }i\neq d,e\\
-                1 &\text{ for }i = d\\
-                2 - b_d &\text{ for }i = e
-                \end{cases}
-        \]
-        \item Thus, a valid negative definite kernel and distance analogue on $\mathbb{S}_{\infty}^{D-1}$.
-    \end{itemize}    
-\end{frame} % Upper bound on geodesic distance 
 
 \subsubsection{Model Recovery}
 
@@ -496,7 +478,7 @@
 \subsection{Integrated Vapor Transport}
 
 \begin{frame}
-  \frametitle{Integrated Vapor Transport}
+  \frametitle{Integrated Vapor Transport (IVT)}
   \begin{minipage}{.7\textwidth}
     \begin{itemize}
         \item Atmospheric rivers~\citep{ralph2013,ralph2018}
@@ -513,7 +495,11 @@
                 \item 42 years of daily average of total water content 
                     in atmospheric column above grid cell
                 \item Grid cells cover coast of California in two 
-                    spatial resolutions (8, and 47 cells)
+                    spatial resolutions
+                    \begin{description}
+                        \item[ERA-Interim] 8 Cells
+                        \item[ERA5] 47 Cells
+                    \end{description}
                 \item subset to rainy season (November to March)
             \end{itemize}
     \end{itemize}
@@ -529,19 +515,19 @@
 \begin{frame}
     \frametitle{IVT Grid}
     \begin{minipage}{.49\textwidth}
-    \centering
-    \includegraphics[height=\frametextheight]{./ch1/images/erai_grid}
-  \end{minipage}
-  \begin{minipage}{.49\textwidth}
-    \centering
-    \includegraphics[height=\frametextheight]{./ch1/images/era5_grid}
+        \centering
+        \includegraphics[height=\frametextheight]{./ch1/images/erai_grid}
+    \end{minipage}
+    \begin{minipage}{.49\textwidth}
+        \centering
+        \includegraphics[height=\frametextheight]{./ch1/images/era5_grid}
   \end{minipage}
 \end{frame} % IVT Grid Map
 
 \begin{frame}
   \frametitle{IVT - Energy Score}
   \begin{center}
-    \include{table_dev}
+    \input{ch1/tables/table_dev_updated}
   \end{center}
 \end{frame} % IVT - Energy Score
 
@@ -575,76 +561,26 @@
   \includegraphics[width=0.99\linewidth]{./ch1/images/chi_ij_c}
 \end{frame} % Pairwise Extremal Dependence coefficients - Plot
 
-\subsubsection{IVT - Conditional Survival}
-
-\begin{frame}
-  \frametitle{Conditional Survival Function}
-  \begin{prop}
-      For $\alpha \subset \lbrace 1, \ldots, D\rbrace$
-    \[
-        \mathbb{P}\left[\bigcap_{d\in\alpha}Z_{d} > z_d\mid \bigcap_{d\not\in\alpha}\bm{Z}_{d} > \bm{z}_{d}\right] =
-        \frac{\mathbb{E}\left[\bigwedge_{d = 1}^D \frac{V_k}{z_k}\right]}{
-                      \mathbb{E}\left[\bigwedge_{d\not\in\alpha}\frac{V_d}{z_d}\right]}
-    \]
-      where $\bm{V} = \bm{Z}\,/\,\lVert\bm{Z}\rVert_{\infty}$.
-  \end{prop}
-\end{frame} % Conditional Survival - Introduction
-
-
-\begin{frame}
-  \frametitle{IVT - Conditional Survival 1d}
-  \begin{center}
-    \includegraphics[height=0.8\frametextheight,width=0.9\textwidth]{./ch1/images/condsurv_1d}
-  \end{center}
-\end{frame} % Conditional Survival 1d
-
-\begin{frame}
-  \frametitle{IVT - Conditional Survival 2d (selected)}
-  \begin{center}
-    \includegraphics[height=\frametextheight,width=\frametextheight]{./ch1/images/condsurv_2d}
-  \end{center}
-\end{frame} % Conditional Survival 2d
-
 \subsection{Conclusion}
 
 \section[Anomaly Detection]{Anomaly Detection in PoT Settings and Angular Representations of Categorical Data}
 \subsection{Introduction}
 
 \begin{frame}
-  \frametitle{What is an anomaly?}
-  \begin{itemize}
-    \item Anomalies are:
-      \begin{itemize}
-        \item Observations with large outliers?
-        \item Observations with outsized effects?
-        \item Data that is \emph{different}.
-        \item Data from regions of data sparsity.
-      \end{itemize}
-    \item Desire anomaly \emph{scores}--larger$\rightarrow$more anomalous
-  \end{itemize}
+    \frametitle{What is an anomaly?}
+    \label{ndpg:anomaly}
+    \begin{itemize}
+        \item Anomalies are:
+        \begin{itemize}
+            \item Observations with large outliers?
+            \item Observations with outsized effects?
+            \item Data that is \emph{different}.
+            \item Data from regions of data sparsity.
+        \end{itemize}
+        \item Desire anomaly \emph{scores}--larger$\rightarrow$more anomalous
+    \end{itemize}
+    \hyperlink{ndpg:anomalymethods}{\beamerbutton{Methods Expansion}}
 \end{frame} % What is an anomaly?
-
-\begin{frame}
-  \frametitle{Classical Anomaly Detection Methods}
-  \begin{itemize}
-    \item Clustering methods
-      \begin{itemize}
-        \item Linkage-based (single, \dots, complete)~\citep{ackerman2010}
-        \item Centroid-based ($k$-Means)~\citep{hartigan1979} 
-        \item Density-based (DBSCAN)~\citep{ester1996}
-      \end{itemize}
-    \item Non-statistical Models
-      \begin{itemize}
-        \item Isolation Forest~\citep{liu2000}
-        \item One-class SVM~\citep{chang2011}
-        \item Local Outlier Factor~\citep{breunig2000}
-      \end{itemize}
-    \item Statistical Models
-      \begin{itemize}
-        \item Density Estimation routines (GMM's, KDE, KNN)
-      \end{itemize}
-  \end{itemize}
-\end{frame} % Anomaly Detection Methods
 
 \subsection{The Angular Data Model}
 
@@ -935,7 +871,7 @@
 \end{frame} % Mixed Data Model
 
 \begin{frame}
-    \frametitle{AuROC - Mixed Data}
+    \frametitle{AuROC - Peaks-over-Threshold - Mixed Data}
     \begin{table}
         \centering
         \input{./ch2/tables/ad_real_performance_update}
@@ -966,7 +902,7 @@
 \end{frame} % Rank Data Model
 
 \begin{frame}
-    \frametitle{AuROC - Rank-Transformed Data}
+    \frametitle{AuROC - Rank-Transformed - Mixed Data}
     \begin{table}
         \centering
         \input{./ch2/tables/ad_rank_performance_update}
@@ -975,7 +911,7 @@
 
 \subsection{Conclusion}
 
-\section[Application At Scale]{Extremal Dependence of Storm Surge Using a PoT Model}
+\section[Storm Surge]{Extremal Dependence of Storm Surge Using a PoT Model}
 \subsection{Introduction}
 
 \subsubsection{SLOSH}
@@ -1226,17 +1162,18 @@
 
 \begin{frame}
     \frametitle{Conditional Survival Curves}
+    \begin{prop}
+      For $\alpha \subset \lbrace 1, \ldots, D\rbrace$
+    \[
+        \mathbb{P}\left[\bigcap_{d\in\alpha}Z_{d} > z_d\mid \bigcap_{d\not\in\alpha}\bm{Z}_{d} > \bm{z}_{d}\right] =
+        \frac{\mathbb{E}\left[\bigwedge_{d = 1}^D \frac{V_k}{z_k}\right]}{
+                      \mathbb{E}\left[\bigwedge_{d\not\in\alpha}\frac{V_d}{z_d}\right]}
+    \]
+      where $\bm{V} = \bm{Z}\,/\,\lVert\bm{Z}\rVert_{\infty}$.
+  \end{prop}
     \begin{itemize}
-        \item Recall the Conditional Survival Probability
-        \[
-        \mathbb{P}\left[\bigcap_{d\in\alpha}Z_d \geq z_d\;\middle|\;
-            \bigcap_{d\not\in\alpha}Z_d \geq z_d\right] =
-        \frac{
-            \mathbb{E}\left[\bigwedge_{d=1}^D 1\wedge \frac{V_d}{z_d}\right]
-        }{
-            \mathbb{E}\left[\bigwedge_{d\not\in\alpha} 1\wedge \frac{V_d}{z_d}\right]
-        }
-        \]
+        \item Conditioning on the state of the field
+        \item $\bm{w}_n$, $\bm{v}_n$ is maximum surge at each location during storm $n$---not simultaneous
         \item We can use $\bm{Z}_{\neg\alpha}$ to specify \emph{scenarios}
     \end{itemize}
 \end{frame} % Conditional Survival Probability
@@ -1316,8 +1253,8 @@
             \item[$\bm{x}_{n,\text{obs}}$] Parameters of $n$th storm (scaled)
             \item[$\bm{x}_{d,\text{loc}}$] Information pertaining to $d$th location 
                 (lat., lon., elevation)
-            \item[$\bm{x}_{nd,\text{int}}$] Any interaction thereof.  
-                Currently distance to eye at landfall.
+            \item[$\bm{x}_{nd,\text{int}}$] Any interaction thereof---Currently 
+                distance to eye at landfall (hectomiles).
         \end{description}
         \item Then $\bm{\theta}$ has dimensionality $5 + 3 + 1 = 9$
         \item Location random effect $\varepsilon_d$
@@ -1432,13 +1369,13 @@
     \end{center}
 \end{frame} % Fin 
 
+\appendix
+
 \begin{frame}[allowframebreaks]
     \frametitle{References}
     \footnotesize
     \bibliography{./refs}
 \end{frame}
-
-\appendix
 
 \section*{Appendix}
 
@@ -1556,6 +1493,57 @@
 \subsection*{Negative Definite Kernel}
 
 \begin{frame}
+    \frametitle{Not Geodesic Distance}
+    \label{pgpareto:notgeodesic}
+    \begin{itemize}
+        \item Geodesic distance is length of shortest path from points $\bm{a}$ to $\bm{b}$.
+        \item $\mathbb{S}_1^{D-1}$ easy.  $\mathbb{S}_2^{D-1}$ more difficult. 
+            No simple closed form for $\mathbb{S}_{\infty}^{D-1}$
+        \item $\mathbb{S}_{\infty}^{D-1}$ easier\ldots and harder.
+        \begin{itemize}
+            \item All faces are pairwise adjacent.
+            \item A \emph{net} is an unfolding of a geometric figure.  
+            \item Shortest path corresponds to straight line on appropriate net.
+            \item $D!$ possible nets.  But $\sum_{d = 1}^{D-2}\binom{D-2}{d}$ 
+                possible distinct paths.  Still too much.
+        \end{itemize}
+    \end{itemize}
+    \hyperlink{pgpareto:energyscore}{\beamerbutton{Energy Score}}
+\end{frame} % Not geodesic distance 
+
+\begin{frame}
+    \frametitle{Upper Bound on Geodesic Distance on $\mathbb{S}_{\infty}^{D-1}$}
+    \label{pgpareto:kerneldetails}
+    \begin{itemize}
+        \item Let $\mathbb{C}_e^{D-1} = \left\lbrace\bm{v} : \bm{v} \in 
+            \mathbb{S}_{\infty}^{D-1},\;\bm{v}_e = 1\right\rbrace$.
+        %\pause
+        \item Let $\bm{a}\in \mathbb{C}_d^{D-1}$, $\bm{b}\in\mathbb{C}_e^{D-1}$, and
+            $\mathbb{C}_{de}^{D-2} = \mathbb{C}_d^{D-1}\cap \mathbb{C}_e^{D-1}$
+            for $d,e\in \lbrace 1,\ldots,D\rbrace$.
+            \[
+            g(\bm{a},\bm{b}) = \begin{cases}
+                \min\limits_{\bm{c}\in\mathbb{C}_{de}^{D-2}}\lVert \bm{c} - \bm{a}\rVert_2 + 
+                    \lVert \bm{b} - \bm{c}\rVert_2 &\text{ for }d\neq e\\
+            \lVert \bm{a} - \bm{b}\rVert_2 &\text{ otherwise}
+            \end{cases}
+            \]
+        %\pause
+        \item A Computationally Efficient Form
+        \[
+            g(\bm{a},\bm{b}) = \lVert \bm{a} - \bm{b}^{\prime}\lVert_2 
+            \text{ where }\bm{b}^{\prime} = \begin{cases}
+                b_i &\text{ for }i\neq d,e\\
+                1 &\text{ for }i = d\\
+                2 - b_d &\text{ for }i = e
+                \end{cases}
+        \]
+        \item Thus, a valid negative definite kernel and distance analogue on $\mathbb{S}_{\infty}^{D-1}$.
+    \end{itemize}
+    \hyperlink{pgpareto:energyscore}{\beamerbutton{Energy Score}}
+\end{frame} % Upper bound on geodesic distance 
+
+\begin{frame}
     \frametitle{Negative Definite Kernel - Proof}
     \label{pgpareto:negdefkernel}
     \begin{itemize}
@@ -1632,7 +1620,73 @@
   }
 \end{frame}
 
+\subsubsection{IVT - Conditional Survival}
+
+\begin{frame}
+  \frametitle{Conditional Survival Function}
+  \begin{prop}
+      For $\alpha \subset \lbrace 1, \ldots, D\rbrace$
+    \[
+        \mathbb{P}\left[\bigcap_{d\in\alpha}Z_{d} > z_d\mid \bigcap_{d\not\in\alpha}\bm{Z}_{d} > \bm{z}_{d}\right] =
+        \frac{\mathbb{E}\left[\bigwedge_{d = 1}^D \frac{V_k}{z_k}\right]}{
+                      \mathbb{E}\left[\bigwedge_{d\not\in\alpha}\frac{V_d}{z_d}\right]}
+    \]
+      where $\bm{V} = \bm{Z}\,/\,\lVert\bm{Z}\rVert_{\infty}$.
+  \end{prop}
+  \begin{itemize}
+      \item Conditional on the current state of the field
+      \item Following are conditioning on the rest of the field being above threshold
+  \end{itemize}
+\end{frame} % Conditional Survival - Introduction
+
+\begin{frame}
+  \frametitle{IVT - Conditional Survival 1d}
+  \begin{center}
+    \includegraphics[height=0.8\frametextheight,width=0.9\textwidth]{./ch1/images/condsurv_1d}
+  \end{center}
+\end{frame} % Conditional Survival 1d
+
+\begin{frame}
+    \frametitle{IVT - Conditional Survival 2d (selected)}
+    \begin{minipage}{.49\textwidth}
+        \centering
+        \includegraphics[height=\frametextheight]{./ch1/images/condsurv_2d}
+    \end{minipage}
+    \begin{minipage}{.49\textwidth}
+    Extremal Dependence
+        \begin{itemize}
+            \item Low between 1 \& 5
+            \item High between 4 \& 5
+        \end{itemize}
+    \end{minipage}
+\end{frame} % Conditional Survival 2d
+
+
 \subsection*{Novelty Detection}
+
+\begin{frame}
+  \frametitle{Classical Anomaly Detection Methods}
+  \label{ndpg:anomalymethods}
+  \begin{itemize}
+    \item Clustering methods
+      \begin{itemize}
+        \item Linkage-based (single, \dots, complete)~\citep{ackerman2010}
+        \item Centroid-based ($k$-Means)~\citep{hartigan1979} 
+        \item Density-based (DBSCAN)~\citep{ester1996}
+      \end{itemize}
+    \item Non-statistical Models
+      \begin{itemize}
+        \item Isolation Forest~\citep{liu2000}
+        \item One-class SVM~\citep{chang2011}
+        \item Local Outlier Factor~\citep{breunig2000}
+      \end{itemize}
+    \item Statistical Models
+      \begin{itemize}
+        \item Density Estimation routines (GMM's, KDE, KNN)
+      \end{itemize}
+  \end{itemize}
+  \hyperlink{ndpg:anomaly}{\beamerbutton{Anomalies}}
+\end{frame} % Anomaly Detection Methods
 
 \begin{frame}
     \frametitle{Novelty Scores - Calculation}
