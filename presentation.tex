@@ -1219,9 +1219,34 @@
 
 \begin{frame}
     \frametitle{SLOSH, and locations}
-    \begin{center}
-    \includegraphics[height=\frametextheight]{./ch3/plots/slosh_combined}
-    \end{center}
+    \begin{minipage}{0.54\textwidth}
+    {\footnotesize
+    \begin{itemize}
+        \item Simulations of storm surge given storm characteristics \par
+        \begin{tabular}{cl}
+            \textit{bearing}  & Direction (Angle) of storm eye at landfall \\
+            \textit{velocity} & velocity of storm eye at landfall (kph)    \\
+            \textit{latitude} & latitude of storm eye at landfall (dd)     \\
+            \textit{pmin}     & Minimum atmospheric pressure of storm      \\
+            \textit{pslr}     & Projected sea-level-rise over 100 years    \\
+            \end{tabular}
+        \item Each simulation an output grid
+        \begin{itemize}
+            \item \num{23119800} elements
+            \item Spatial resolution 0.001 degrees, approx 90 meters.
+        \item 4000 simulations
+        \item Parameters sampled via Latin hypercube
+        \end{itemize}
+    \end{itemize}
+    }
+    \end{minipage}% 
+    \begin{minipage}{0.45\textwidth}
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{./ch3/plots/slosh_1run}
+        \caption{Grid output for 1 storm simulation.  Red arrow indicates location and direction of eye at landfall.}
+    \end{figure}
+    \end{minipage}
 \end{frame} % SLOSH Locations
 
 \note{
