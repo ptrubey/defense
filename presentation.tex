@@ -1,4 +1,4 @@
-\documentclass[aspectratio=169,10pt]{beamer}
+\documentclass[aspectratio=169,10pt,notes]{beamer}
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amsthm}
@@ -65,16 +65,16 @@
 
 \section{Introduction}
 
-\AtBeginSection[]{
-  \begin{frame}
-  \vfill
-  \centering
-  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
-    \usebeamerfont{title}\insertsection\par%
-  \end{beamercolorbox}
-  \vfill
-  \end{frame}
-}
+% \AtBeginSection[]{
+%   \begin{frame}
+%   \vfill
+%   \centering
+%   \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+%     \usebeamerfont{title}\insertsection\par%
+%   \end{beamercolorbox}
+%   \vfill
+%   \end{frame}
+% }
 
 
 \subsection{Extreme Value Theory}
@@ -113,6 +113,30 @@
     \end{minipage}
 \end{frame} % Intro
 
+\note{
+    EVT is
+    \begin{itemize}
+    \item Tails - Rather than focusing on the main mass, or \emph{normal behavior}.
+    \item Beyond - We have limited data, but are interested in how 'how bad' it could be.
+    \end{itemize}
+    Applications are myriad.
+    \begin{itemize}
+        \item Weather
+        \begin{itemize}
+            \item Atmospheric rivers, such as IVT, which is responsible for the bulk of precipitation in California
+            \item Storm surge---things like overtopping dykes, massive flooding events.
+        \end{itemize}
+        \item Finance
+        \begin{itemize}
+            \item Mortgage forclosures---unanticipated dependence in foreclosures precipitated securities failures, which precipitated the 2008 banking crisis.
+        \end{itemize}
+        \item Insurance
+        \begin{itemize}
+            \item Geographic dependence in risk making insurance prohibitively expensive.
+        \end{itemize}
+    \end{itemize}
+    }
+
 \begin{frame}
     \frametitle{Fisher-Tippet-Gnedenko Thm.}
     For $w_n \stackrel{iid}{\sim} F$:
@@ -136,6 +160,23 @@
     \]
     \end{itemize}
 \end{frame} % Fisher-Tippett-Gnedenko
+
+\note{
+    \begin{itemize}
+    \item Little history:
+
+    \item In Late 1920's through early 1940's, work by Frechet, Fisher and Tippet, Mises, 
+        and Gnedenko shown that
+        \begin{itemize}
+            \item if there exists a limiting non-degenerate distribution on 
+                the maximum observed value in a sample,
+            \item  then that distribution is max-stable, and the generating distribution 
+                is in its domain of attraction.
+        \end{itemize}
+    \item That max-stable distribution will take one of 3 possible forms
+    \item which can be reframed in a single unifying form: the generalized extreme value distribution.
+    \end{itemize}
+}
 
 \begin{frame}
     \frametitle{Pickands-Balkema-De Haan Thm.}  
@@ -168,8 +209,21 @@
     }
 \end{frame} % Pickands-Balkema-de Haan
 
+\note{
+    \begin{itemize}
+        \item In mid 1970's, Pickands, and Balkema and De Haan showed that if a 
+            distribution was in the domain of attraction of the GEV,
+        \item  then excesses above a high threshold in that distribution can be 
+            well approximated by Generalized Pareto.
+        \item This analysis of excesses over a threshold is often termed 
+            \emph{peaks-over-threshold}.
+    \end{itemize}
+}
+
 \begin{frame}
     \frametitle{Multivariate Pareto Distribution}
+    \cite{ferreira2014}
+    
     Assume $W_d \sim F_d$
     \begin{itemize}
     \item Standardize $\bm{W}$ according to its marginal distribution
@@ -189,6 +243,11 @@
     \item $\mu$ features the homogeneity property, $\mu(t\cdot) = t^{-1}\mu(\cdot)$.
     \end{itemize}
 \end{frame} % Multivariate Pareto Distribution
+
+\note{
+    TO DO
+}
+
 
 \begin{frame}
     \frametitle{Spectral (Angular) Measure}
@@ -212,6 +271,10 @@
     \]
     \end{itemize}
 \end{frame} % Spectral Measure
+
+\note{
+    TO DO
+}
 
 \section[Multivariate PoT]{BNP Inference for Multivariate PoT Models}
 \subsection{Estimation of the Angular Measure}
@@ -245,6 +308,22 @@
     \end{enumerate}
     }
 \end{frame} % Separation of R,V
+
+\note{
+    \begin{itemize}
+    \item I hope you liked that extremely brief review of theory.  Now we get to application.
+
+    \item We set thresholds marginally at a specified quantile, then estimate the scale and extremal index.
+
+    \item We then standardize each observation.  Standardized observations in excess of the threshold are standard Pareto.
+
+    \item Calculate $r$ and $\bm{v}$, and filter data such that $r > 1$.
+
+    \item Since $r$ is independent of $\bm{v}$, and the distribution of $r$ is known, the inference left to us is identifying the dependence structure of $\bm{z}$, which is expressed through $\bm{v}$.
+
+    We need an angular distribution to model $\bm{v}$, on the positive orthant of the unit hypercube.
+    \end{itemize}
+}
 
 \begin{frame}
     \frametitle{The $\mathcal{L}_p$-Norm Sphere}
@@ -283,6 +362,14 @@
         \end{column}
     \end{columns}
 \end{frame} % L_p-norm sphere
+
+\note{
+    \begin{itemize}
+        \item So let's build an angular distribution.
+        \item Let's consider building a distribution on the positive orthant of the unit $p$-norm Sphere.
+        \item As in the limit, the $p$-norm sphere approaches the $\infty$-norm sphere.
+    \end{itemize}
+}
 
 \begin{frame}
     \frametitle{Projection onto the Unit Sphere}
@@ -325,28 +412,21 @@
     \hyperlink{pgpareto:jacobian}{\beamerbutton{Jacobian Details}}
 \end{frame} % Projection onto unit Sphere
 
-\begin{frame}
-    \frametitle{Choice of a Norm}
+\note{
     \begin{itemize}
-    \item $\bm{V} \in \mathbb{S}_{\infty}^{D-1}$.
-        \[
-            \mathbb{S}_p^{D-1} \xrightarrow[p\to\infty]{} 
-                \mathbb{S}_{\infty}^{D-1}
-        \]
-    %\pause
-    $T^{-1}(\bm{X})$ is not differentiable at $p = \infty$.\vspace{0.25cm}~
-    %\pause
-    \item Recall the Jacobian:
-        \[
-        \lvert J\rvert = R^{D-1}\left[Y_D +
-            {\scriptsize \sum}_{d = 1}^{D-1}Y_d^pY_D^{1-p}\right]
-        \]
-    %\pause
-    \item Density diverges as $Y_D\to 0$.
-    %\pause
-    \item So select large but finite $p$.  Choose $p=10$
+        \item If we want to project a distribution from the positive orthant of the reals, 
+            to the positive orthant of the unit sphere, then we need a transformation
+            that gets us there.
+        \item Consider $\bm{X} = \bm{R}\bm{Y}$ where $R$ is the radius, and $Y$ is the 
+            angular portion of $X$ that exists on the unit $p$-norm sphere.
+        \item we have $D$ degrees of freedom.  We take one degree of freedom as the radius,
+            and one dimension needs to be a function of the others.
+        \item If we invert that, take the Jacobian, and find its determinant...
+        \item We are left with this.  Note $R^{D-1}$ is just hanging out, and the rest is scalar.
+        \item So we need a distribution where $R$ can be integrated out, and can readily
+            absorb that $R^{D-1}$ from the Jacobian.
     \end{itemize}
-\end{frame}
+}
 
 \subsubsection{Projected Gamma Distribution}
 
@@ -382,6 +462,54 @@
     \end{itemize}
     \hyperlink{pgpareto:projgammainference}{\beamerbutton{Recovery of Independence}}
 \end{frame} % Projected Gamma Distribution
+
+\note{
+    \begin{itemize}
+        \item Enter the gamma distribution.
+        \item If we start from a product of gammas, even with that Jacobian,
+        we can integrate out $R$ in closed form.
+        \item And are left with this: a nice closed form density.
+        \item This distribution has some rather nice properties
+        \begin{itemize}
+            \item For one, If we re-introduce the latent $r$, we can marginalize 
+                inference on its shape and rate parameters.
+        \end{itemize}   
+    \end{itemize}
+}
+
+\begin{frame}
+    \frametitle{Choice of a Norm}
+    \begin{itemize}
+    \item $\bm{V} \in \mathbb{S}_{\infty}^{D-1}$.
+        \[
+            \mathbb{S}_p^{D-1} \xrightarrow[p\to\infty]{} 
+                \mathbb{S}_{\infty}^{D-1}
+        \]
+    %\pause
+    $T^{-1}(\bm{X})$ not differentiable at $p = \infty$.\vspace{0.25cm}~
+    %\pause
+    \item Recall the Jacobian:
+        \[
+        \lvert J\rvert = R^{D-1}\left[Y_D +
+            {\scriptsize \sum}_{d = 1}^{D-1}Y_d^pY_D^{1-p}\right]
+        \]
+    %\pause
+    \item Density diverges as $Y_D\to 0$.
+    %\pause
+        \item So select large but finite $p\;\longrightarrow\;p=10$
+    \end{itemize}
+\end{frame}
+
+\note{
+    \begin{itemize}
+        \item Unfortunately it's not all gumdrops and rainbows.
+        \item The phenomena we want to study lives on $\mathbb{S}_{\infty}^{D-1}$
+        \item But the transformation is not differentiable.
+        \item Further, note $Y_D^{1-p}$ in the determinant of the Jacobian.
+        \item for small $Y_D$, that goes to infinity---the density diverges.
+        \item So we select a finite but reasonably large $p$.
+    \end{itemize}
+}
 
 \begin{frame}
     \frametitle{Angular Data Model}
@@ -419,6 +547,18 @@
     \hyperlink{pgpareto:pginference}{\beamerbutton{Full Conditionals for DPPG-G}}
 \end{frame} % Angular Data Model
 
+\note{
+    \begin{itemize}
+        \item Now we get to specifying an angular data model.
+        \item We're using a Bayesian non-parametric prior here; in this case a Dirichlet process,
+            with projected gamma as a kernel distribution.
+        \item We're also considering the idea of a projected \emph{restricted} gamma, with the
+            rate parameters set to 1.
+        \item And choices of product-of-gammas and log-normal as centering distribution
+            with appropriate priors.
+    \end{itemize}
+}
+
 \subsection{Model Comparison}
 
 \begin{frame}
@@ -431,14 +571,14 @@
     \item Generalization of \emph{Continuous Ranked Probability Score} 
         to multiple dimensions
         \[
-        \text{ES}\left(P,\bm{x}_i\right) =  
-            \mathbb{E}_p g\left(\bm{X}_i, \bm{x}_i\right)
-            - \frac{1}{2}\mathbb{E}_p g\left(\bm{X}_i,\bm{X}_i^{\prime}\right)
+        \text{ES}\left(P,\bm{x}_n\right) =  
+            \mathbb{E}_p g\left(\bm{X}_n, \bm{x}_n\right)
+            - \frac{1}{2}\mathbb{E}_p g\left(\bm{X}_n,\bm{X}_n^{\prime}\right)
         \]
         where $g$ is a negative definite kernel.\footnote{A negative 
         definite kernel satisfies symmetry in its arguments, and 
-        $\sum_{i = 1}^n\sum_{j = 1}^n \alpha_i\alpha_j g(\bm{x}_1,\bm{x}_2) \leq 0$ 
-        for all $x_1,x_2$, for all $\alpha_i$ such that $\sum_{i = 1}^n\alpha_i = 0$.
+        $\sum_{i = 1}^N\sum_{j = 1}^N \alpha_i\alpha_j g(\bm{x}_1,\bm{x}_2) \leq 0$ 
+        for all $x_1,x_2$, for all $\alpha_i$ such that $\sum_{i = 1}^N\alpha_i = 0$.
         }
     %\pause
     \item With appropriate (negative definite) kernel 
@@ -464,6 +604,22 @@
     \end{minipage}
 \end{frame} % Model Comparison
 
+\note{
+    \begin{itemize}
+        \item We have multiple candidate models.  We need a means of testing 
+            model fidelity.  We consider energy score.
+        \item Energy score is based on pairwise distances---or some analogue to distance, at least.
+        \item We desire a distance metric appropriate to $\mathbb{S}_{\infty}^{D-1}$.  Geodesic distance?
+        \item Not as it turns out.  Too costly.
+        \item An upper bound on geodesic distance is computationally feasible.  All faces of the
+            unit hypercube are pairwise adjacent, we can just calculate the distance from the source to 
+            the optimal vertex, and then from the vertex to the target.
+        \item or just rotate the target face into the same plane as the source face, and a straight line
+            passes through the optimal vertex.  Which means we just use Euclidean distance between the 
+            source and rotated target.
+    \end{itemize}
+}
+
 \subsubsection{Model Recovery}
 
 \begin{frame}
@@ -474,6 +630,12 @@
   \end{center}
   \hyperlink{pgpareto:simstudydetails}{\beamerbutton{Details}}
 \end{frame} % Simulation Study - Energy Score
+
+\note{
+    \begin{itemize}
+        \item TODO
+    \end{itemize}
+}
 
 \subsection{Integrated Vapor Transport}
 
@@ -501,6 +663,7 @@
                         \item[ERA5] 47 Cells
                     \end{description}
                 \item subset to rainy season (November to March)
+                \item Decorrellated by dropping all but max in a sequence of threshold exceedences
             \end{itemize}
     \end{itemize}
   \end{minipage}
@@ -512,24 +675,44 @@
    \end{minipage}
 \end{frame} % IVT Intro
 
-\begin{frame}
-    \frametitle{IVT Grid}
-    \begin{minipage}{.49\textwidth}
-        \centering
-        \includegraphics[height=\frametextheight]{./ch1/images/erai_grid}
-    \end{minipage}
-    \begin{minipage}{.49\textwidth}
-        \centering
-        \includegraphics[height=\frametextheight]{./ch1/images/era5_grid}
-  \end{minipage}
-\end{frame} % IVT Grid Map
+\note{
+    \begin{itemize}
+        \item Now to the motivating example of the first paper.
+        \item We looked at the integrated vapor transport, which is an atmospheric 
+            river that carries moisture inland over California.  It's responsible
+            for the lion's share of precipitation in the western US.
+        \item An observation is one day's average total water content in atmospheric
+            columns above each grid cell.
+        \item We have 42 years of such data, in two resolutions, 8 and 47.
+        \item We've subset the data to specifically the rainy season, and decorrelated it.
+    \end{itemize}
+}
 
 \begin{frame}
-  \frametitle{IVT - Energy Score}
-  \begin{center}
-    \input{ch1/tables/table_dev_updated}
-  \end{center}
-\end{frame} % IVT - Energy Score
+    \frametitle{IVT Grid}
+    \begin{figure}[h]
+        \begin{minipage}{.49\textwidth}
+            \centering
+            \includegraphics[height=\frametextheight]{./ch1/images/erai_grid}
+        \end{minipage}
+        \begin{minipage}{.49\textwidth}
+            \centering
+            \includegraphics[height=\frametextheight]{./ch1/images/era5_grid}
+      \end{minipage}
+      \caption{(Left) ERA-Interim Spatial Grid; (Right) ERA5 Spatial Grid.}
+  \end{figure}
+\end{frame} % IVT Grid Map
+
+\note{
+    \begin{itemize}
+        \item Here we see that spatial grid.  
+        
+        \item Lower resolution means a \emph{bigger} area for each grid cell.  
+        
+        \item Bigger area means deviations in average water content are going to 
+            be less pronounced, since they're averaging over a larger area.
+    \end{itemize}
+}
 
 \subsubsection{IVT - Extremal Dependence}
 
@@ -555,13 +738,34 @@
     \end{itemize}
 \end{frame} % Pairwise Extremal Dependence coefficients - Intro
 
+\note{
+    \begin{itemize}
+        \item One of the things we can do with our fitted model is assess pairwise dependence.
+        \item In fact, we can do much cooler things, but in the interest of time, I'll leave 
+            presenting those to paper 3.
+        \item Think of pairwise dependence coefficients as somewhat loosely related to correlation.
+        \item It's a number, that tells how closely related extremes in one dimension are with another.
+        \item 0 means asymptotic independence, but a Pareto model (which is what we have) can never represent
+            asymptotic independence.
+    \end{itemize}
+}
+
 \begin{frame}
   \frametitle{IVT - Extremal Dependence}
   \centering
   \includegraphics[width=0.99\linewidth]{./ch1/images/chi_ij_c}
 \end{frame} % Pairwise Extremal Dependence coefficients - Plot
 
-\subsection{Conclusion}
+\note{
+    \begin{itemize}
+        \item This is pairwise extremal dependence plot for both resolutions.  We have some \emph{clusters} 
+            of relatively high dependence.
+        \item This model makes no assumptions with regard to geography.  But here we observe strong but
+            heterogeneous geographic dependence.
+    \end{itemize}
+}
+
+% \subsection{Conclusion}
 
 \section[Anomaly Detection]{Anomaly Detection in PoT Settings and Angular Representations of Categorical Data}
 \subsection{Introduction}
@@ -569,6 +773,7 @@
 \begin{frame}
     \frametitle{What is an anomaly?}
     \label{ndpg:anomaly}
+    {\small
     \begin{itemize}
         \item Anomalies are:
         \begin{itemize}
@@ -576,61 +781,9 @@
             \item Observations with outsized effects?
             \item Data that is \emph{different}.
             \item Data from regions of data sparsity.
+            \item Anomalies may tend to exist at the edge of \emph{extreme} regions.
         \end{itemize}
         \item Desire anomaly \emph{scores}--larger$\rightarrow$more anomalous
-    \end{itemize}
-    \hyperlink{ndpg:anomalymethods}{\beamerbutton{Methods Expansion}}
-\end{frame} % What is an anomaly?
-
-\subsection{The Angular Data Model}
-
-\begin{frame}
-    \frametitle{Angular Distribution}
-    \[
-        \begin{aligned}
-        \bm{y}_n \mid \bm{\alpha}_n &\sim \mathcal{PG}_p
-                \left(\bm{y}\mid\bm{\alpha}_n, \bm{1}\right)\\
-        \bm{\alpha_n} &\sim G\\
-        G &\sim \mathcal{PY}\left(\omega, \eta, G_0\right)\\
-        \end{aligned}
-        ~\hspace{1cm}
-        \begin{aligned}
-        G_0 &= \mathcal{LN}_D\left(\bm{\alpha}\mid\bm{\mu},\Sigma\right)\\
-        \mu &\sim \mathcal{N}_D\left(\bm{0},\bm{1}\right)\\
-        \Sigma &\sim \mathcal{IW}_D\left(\nu, \Psi\right).
-        \end{aligned}
-    \]
-\end{frame} % Angular Distribution
-
-\begin{frame}
-    \frametitle{Pitman-Yor Model}
-    \begin{itemize}
-    \item Stick-breaking Weight - Full Conditional
-    \[
-    \rho_{\jmath} \mid \bm{n} \sim \text{Beta}\left(1 + C_{\jmath} - \omega, 
-            \eta + \sum_{k > \jmath} C_k + \jmath \omega\right)
-    \]
-    %\pause
-    \item Cluster weights
-    \[
-        \pi_{\jmath} := \rho_{\jmath} \prod_{k < \jmath}(1 - \rho_k)
-    \]
-    %\pause
-    \item Cluster Identity - Full Conditional
-    \[
-    \mathbb{P}\left[\gamma_n = \jmath \mid \bm{\pi},\bm{\alpha}\right] =
-            \frac{\pi_{\jmath}\;\mathcal{PG}_p\left(\bm{y}_n\mid\bm{\alpha}_{\jmath},\bm{1}\right)}{
-                \sum_{k = 1}^J \pi_k\;
-                \mathcal{PG}_p\left(\bm{y}_n\mid\bm{\alpha}_k,\bm{1}\right)}
-    \]
-    \end{itemize}
-\end{frame} % Pitman-Yor expansion
-
-\subsection{Novelty Detection Methods}
-
-\begin{frame}
-    \frametitle{Posterior Predictive Density}
-    \begin{itemize}
         \item A General Anomaly Score:
         \[
             \mathcal{S}_n = \left[\int_{\Theta}f(x_n\mid\theta)\,dG(\theta\mid\bm{x})\right]^{-1}
@@ -641,25 +794,75 @@
             \mathcal{S}_n = \mathcal{S}_{n,r} \times \mathcal{S}_{n,\bm{v}}
                 = f_r(r_n)^{-1}\times \left[\int_{\Omega}f_{\bm{v}}(\bm{v}_n\mid\bm{\alpha})\,\text{d}G(\bm{\alpha}\mid\bm{v})\right]^{-1}
         \]
-        where $r_n\sim\text{Pareto}(1)$ by construction, so $f_r(r_n) = r_n^2$.
+        where $r_n\sim\text{Pareto}(1)\;\longrightarrow\;f_r(r_n) = r_n^{-2}$.
     \end{itemize}
-\end{frame} % Posterior Predictive Density
+    }
+    \hyperlink{ndpg:anomalymethods}{\beamerbutton{Methods Expansion}}
+\end{frame} % What is an anomaly?
+
+\note{
+    \begin{itemize}
+        \item One of the applications we were interested in using extreme analysis was 
+            anomaly detection.
+        \item Now, in regards to extreme analyis, a good question to ask is what is an 
+            anomaly?
+        \item In a regression context, this might be observations with large outliers?  
+            Or have large effects on inference?
+        \item For our purpose, we consider anomalous data to have a different generating
+            distribution than \emph{normal} data.
+        \item We expect it to appear in regions of data sparsity---potentially in extreme
+            regions to a greater extent.
+        \item We desire an interpretable anomaly score--larger means more anomalous.
+        \item this is relatively easy to accomplish as the reciprocal of the density.
+        \item In an extreme case, given the separation of radial and angular components,
+            we can seprate the radial and angular scores.  The radial score is easy.
+    \end{itemize}
+}
+
+\subsection{Novelty Detection Methods}
 
 \begin{frame}
     \frametitle{Estimation of the Angular Score}
+    \label{ndpg:estimationofangularscore}
     \begin{itemize}
-        \item Density on $\mathbb{S}_{\infty}^{D-1}$ is not available.
-        %\pause
-        \item Density on $\mathbb{S}_p^{D-1}$ is problematic---no unique transformation.
-        %\pause
-        \item Gamma density is problematic.  For 
-            $\alpha < 1$, \[\text{Ga}(x\mid\alpha, 1) \xrightarrow[x\to0]{} \infty\]
-        %\pause
-        Multivariate extreme data tends to exist near edges, with some $\bm{v}_d$ approaching 0.
-        %\pause
-        \item Alternative Density Estimator?
+        \item Similar angular data model as previous
+        \begin{itemize}
+            \item Pitman-Yor process for greater control over clustering
+            \item $G_0 = \mathcal{LN}\left(\bm{\alpha}\mid\mu,\Sigma\right)$ 
+                for consistency later
+        \end{itemize}
+        \item Need an angular density
+        \item Density on $\mathbb{S}_{\infty}^{D-1}$ not available
+        \item Density on $\mathbb{S}_p^{D-1}$ problematic: no unique transformation
+        \item Gamma density is problematic: For $\alpha < 1$,
+        \[
+        \text{Ga}(x\mid\alpha, 1) \xrightarrow{x\to 0}{}\infty
+        \]
+        \item Multivariate extreme data tends to exist near edges, with some $v_d = 0$
+        \item Alternate density estimator?
     \end{itemize}
-\end{frame} % Estimation of Angular Score
+    \hyperlink{ndpg:angulardatamodel}{\beamerbutton{Angular Data Model Details}}
+\end{frame}
+
+\note{
+    \begin{itemize}
+        \item Now, we want to create an angular score.
+        \item Ideally, this would be the reciprocal of the posterior predictive density 
+            as stated.
+        \item So we use a similar BNP mixtures of projected restricted gamma model as previous, 
+            with a Pitman-Yor process prior for greater control over the clustering.
+        \item For consistency later, we'll use a log-normal centering distribution for the shapes.
+        \item Now the problems:
+        \begin{itemize}
+            \item Density on the unit hypercube isn't available.
+            \item Density on the unit $p$-norm sphere is problematic, for two reasons:
+                The transformation isn't unique, and the edge-seeking behavior of the gamma 
+                when the shape is less than 1.
+            \item multivariate data tends to exist near edges.
+        \end{itemize}
+        \item So we need some alternate density estimator?        
+    \end{itemize}
+}
 
 \begin{frame}
     \frametitle{$k$-Nearest Neighbors}
@@ -674,11 +877,24 @@
         %\pause
         \item Score:
         \[
-            \mathcal{S}_{n,\bm{v}}^{\text{$k$NN}} = \frac{N\pi^{\frac{D-1}{2}}R_k(\bm{v}_n)^{D-1}}{k\Gamma(\frac{D-1}{2} - 1)}
+            \mathcal{S}_{n,\bm{v}}^{\text{$k$NN}} 
+                = \frac{N\pi^{\frac{D-1}{2}}R_k(\bm{v}_n)^{D-1}}{k\Gamma(\frac{D-1}{2} - 1)}
         \]
         the reciprocal of that density.
     \end{itemize}
 \end{frame} % KNN
+
+\note{
+    \begin{itemize}
+        \item  Well, there's many options, but two readily available are $k$-nearest neighbors 
+            and kernel density estimation.
+        \item $k$-NN assumes a uniform density within a sphere of radius the "distance" to the 
+            $k$th nearest neighbor on the posterior predictive sample.
+        \item The \emph{distance} we're using is the previously mentioned distance analogue on 
+            $\mathbb{S}_{\infty}^{D-1}$
+        \item And then the score is the reciprocal of that estimated density.
+    \end{itemize}
+}
 
 \begin{frame}
     \frametitle{Kernel Density Estimation}
@@ -714,12 +930,27 @@
         \item Score:
         \[
         \mathcal{S}_{n,\bm{v}}^{\text{kde}} \propto 
-            \sum_{k=1}^K\exp\left\lbrace-\left(
-                \frac{g(\bm{v}_n,\bm{v}_k^*)}{h}\right)^2\right\rbrace
+            \left[\sum_{k=1}^K\exp\left\lbrace-\left(
+                \frac{g(\bm{v}_n,\bm{v}_k^*)}{h}\right)^2\right\rbrace\right]^{-1}
         \]
     \end{enumerate}
     }
 \end{frame} % Kernel Density Estimation
+
+\note{
+    \begin{itemize}
+        \item KDE is a little more interesting.
+        \item $Q$ is a kernel function.  The estimation is based on pairwise distances
+            (again using the term distance loosely).
+        \item Silverman's rule of thumb is about estimation of the bandwidth parameter.
+            It requires an estimate of standard deviation.
+        \item This is a multivariate distribution.  Standard deviation isn't defined.
+            But we do have those pairwise distances, which are univariate.
+        \item So being wildly disrespectful to theory, we come up with this estimator of
+            standard deviation.
+        \item And the score is then going to the reciprocal of the estimated KDE.
+    \end{itemize}
+}
 
 \subsection{Binary and Categorical Data}
 
@@ -727,6 +958,8 @@
 
 \begin{frame}
     \frametitle{Categorical Distributions}
+    \label{ndpg:categoricaldistributions}
+    {\small 
     \begin{itemize}
         \item Dirichlet-Multinomial Distribution
             \[
@@ -747,48 +980,45 @@
             \prod_{d = 1}^D 
             \frac{\Gamma(c_{d} + \alpha_{d})}{\Gamma(\alpha_{d})}
             \]
+        \item Let $\bm{c}_m$ be categorical RV with $D_m$ categories in one-hot:
+        \[
+        \mathcal{CDC}(\bm{c}\mid\bm{\alpha}) = 
+        \prod_{m = 1}^M \mathcal{DC}(\bm{c}_m\mid\bm{\alpha}_m)
+        \]
+        \item The Model:
+        \[
+        \bm{c}_n \sim \mathcal{CDC}\left(\bm{c}\mid\bm{\alpha}_n\right) \hspace{1cm}\bm{\alpha}_n \sim G \hspace{1cm} G \sim \mathcal{PY}\left(\omega,\eta,G_0\right)
+        \]
+        where $G_0 = \mathcal{LN}_D\left(\bm{\alpha}\mid\mu,\Sigma\right)$.
     \end{itemize}
+    }
+    \hyperlink{ndpg:categoricaldatamodel}{\beamerbutton{Categorical Data Model Details}}
 \end{frame} % Categorical Distributions
 
-\begin{frame}
-    \frametitle{Categorical Data Model}
-    Let $\bm{c}_m$ be categorical RV with $D_m$ categories in one-hot encoding.  
-    then $\mathcal{CDC}(\bm{c}\mid\bm{\alpha}) = 
-        \prod_{m = 1}^M \mathcal{DC}(\bm{c}_m\mid\bm{\alpha}_m)$.  
-        Then
+\note{
     \begin{itemize}
-    %\pause
-    \item Model:
-    \[
-    \begin{aligned}
-      \bm{c}_n \mid \bm{\alpha}_n &\sim 
-        \mathcal{CDC}\left(\bm{c}_n\mid\bm{\alpha}_n\right)\\
-      \bm{\alpha_n} &\sim G\\
-      G &\sim \mathcal{PY}\left(d, \eta, G_0\right)\\
-      \end{aligned}
-      ~\hspace{1cm}
-      \begin{aligned}
-      G_0 &= \mathcal{LN}\left(\bm{\alpha}\mid\bm{\mu},\Sigma\right)\\
-      \mu &\sim \mathcal{N}\left(\bm{0},\bm{1}\right)\\
-      \Sigma &\sim \mathcal{IW}\left(\nu, \Psi\right).
-      \end{aligned}
-      \]
-    %\pause
-    \item $\Psi$ is block-diagonal matrix.  Within each $m$-block:
-    \begin{itemize}
-        \item diagonals set to $\psi_0$
-        \item off-diagonals set to $-\psi_0D_m^{-2}$; Covariance of uniform categorical.
+        \item Sadly canonical "anomaly detection" datasets appropriate to this model don't seem to exist.
+        \item Financial datasets, such as wire fraud, where I believe this method would shine
+            are not available.
+        \item So we considered how to expand the applicability of the method to other data.
+        \item And we considered the idea of an angular representation of categorical data.
+        \item The Dirichlet multinomial distribution is what's left when you integrate out
+            a dirichlet RV from a multinomial with a Dirichlet prior.
+        \item As a categorical RV is a multinomial with $N = 1$, we can simplify that to this form.
+        \item Then our categorical data model is a BNP mixture of concatenated Dirichlet-Categorical
+            RV's, with a Pitman-Yor prior.  We introduce negative dependence between the categories
+            in the prior for $\Sigma$.
     \end{itemize}
-    \end{itemize}    
-\end{frame} % Categorical Data Model 
+}
 
 \subsubsection{Novelty Detection for Categorical Data}
 
 \begin{frame}
     \frametitle{Novelty Scores}
     \label{ndpg:noveltyscores}
-    \begin{itemize}
-    \item Latent Cluster ID's / Parameters
+    % \begin{itemize}
+    % \item Latent Cluster ID's / Parameters
+    Latent Cluster ID's / Parameters
         \[
         \mathbb{P}[\gamma_n = \jmath\mid \bm{\alpha}, \bm{\pi}, \bm{c}_n] = 
         \frac{
@@ -799,17 +1029,34 @@
             \;\;\;\text{ for }\jmath = 1, \ldots, J,
         \]
     where $\bm{\pi}$ is cluster weight.
-    \item \emph{Angular} representation of categorical:
+    
+    % \item \emph{Angular} representation of categorical:
+    \emph{Angular} representation of categorical data:
         \begin{enumerate}
             \item Take samples of $\gamma_n\mid \bm{\alpha}_k,\bm{\pi}_k,\bm{c}_n$ for $k = 1,\ldots,K$, for $n = 1,\ldots, N$.
             \item Sample $\bm{\varphi}_{nk}\sim \prod_{d = 1}^D\text{Ga}(\varphi_d\mid\alpha_{nkd},1)$
             \item Angular representation is conditional posterior of $\bm{\nu}_n = \bm{T}_{\infty}(\bm{\varphi}_n)$
             \item Simplex representation is conditional posterior of $\bm{\pi}_n = \prod_{m = 1}^MT_1(\bm{\varphi}_{nm})$
         \end{enumerate}
-    \item Scores based on pairwise distances between samples of $\bm{\nu}_n$ and $\bm{\nu}^*$
-    \end{itemize}
+    % \item Scores based on pairwise distances between samples of $\bm{\nu}_n$ and $\bm{\nu}^*$
+    Scores based on pairwise distances between samples of $\bm{\nu}_n$ and $\bm{\nu}^*$ (or $\bm{\pi}_n$ and $\bm{\pi}^*$)
+    % \end{itemize}\\
     \hyperlink{ndpg:noveltyscoresdetail}{\beamerbutton{Novelty Score Details}}
 \end{frame} % Categorical Anomaly Scores setup
+
+\note{
+    \begin{itemize}
+        \item So what do we mean by an \emph{angular} representation of categorical data?
+        \item Well, we can find the latent conditional posterior distribution of the dirichlet-categorical
+            shape parameters.
+        \item Sampling the conditional posterior predictive, we can then project that onto a unit sphere.
+            This representation is what we mean by \emph{angular}.
+        \item Then scores are based on pairwise distances between samples from the conditional posterior 
+            predictive for a given observation, and the posterior predictive distribution.
+        \item Given that we're dealing with a latent distribution here, we can either take its expectation
+            sequentially (\emph{hkde}, \emph{hknn}), or simultaneously (\emph{lhkde}, \emph{lskde}).
+    \end{itemize}
+}
 
 \begin{frame}
     \frametitle{AuROC - Categorical}
@@ -818,6 +1065,12 @@
         \input{./ch2/tables/ad_cat_performance_update}
     \end{table}
 \end{frame} % Categorical Anomaly Score Performance Data
+
+\note{
+    \begin{itemize}
+        \item TODO
+    \end{itemize}
+}
 
 \subsection{Mixed Data}
 
@@ -870,6 +1123,20 @@
     }
 \end{frame} % Mixed Data Model
 
+\note{
+    \begin{itemize}
+        \item To the point: we consider a mixed data model, encompassing both regimes: 
+            real and angular data.
+        \item We consider a joint projection: categorical and angular data in the same
+            space.  To do that, we sample the latent radius from the angular component
+        \item then project both together into the same space.
+        \item The scores are decided as previous.
+        \item We also consider a mixed score.  This score does not consider the
+            dependence between the two regimes, so we can consider this as somewhat
+            a reality check on the efficacy of the joint projection.
+    \end{itemize}
+}
+
 \begin{frame}
     \frametitle{AuROC - Peaks-over-Threshold - Mixed Data}
     \begin{table}
@@ -877,6 +1144,21 @@
         \input{./ch2/tables/ad_real_performance_update}
     \end{table}
 \end{frame} % AuROC - Mixed Real
+
+\note{
+    \begin{itemize}
+        \item So first thing we can identify:  The mixed score is never best, but it's 
+            also never terrible.
+        \item Our methods for anomaly detection look for observations that are in areas
+            of low density.  That means observations unlike other observations.  So they
+            won't work well on datasets where the definition of an anomaly doesn't match
+            our conceptions.
+        \item On the other hand, \emph{hknn} and \emph{hkde} trade blows, but \emph{lhkde}
+            is generally superior to \emph{hkde}.  Perhaps the additional information
+            offered by the latent conditional posterior, rather than just its expectation, 
+            helped.
+    \end{itemize}
+}
 
 \subsubsection{Rank Transformation}
 
@@ -901,6 +1183,19 @@
     \end{itemize}
 \end{frame} % Rank Data Model
 
+\note{
+    \begin{itemize}
+        \item  Up to now, we relied on thresholding of the real data, which is required
+            in order to separate inference of the radial component from the angular component.
+        \item This eliminates from consideration all data that did not exceed the threshold.
+        \item If we consider an alternate transformation to standard Pareto, that
+            based on rank transform, then we no longer lose that data from consideration
+        \item But that does mean we need to include the extremal index as one of the parameters.
+            We include it, with the log-normal centering distribution as previously mentioned.
+        \item The previously developed scores still work.
+    \end{itemize}
+}
+
 \begin{frame}
     \frametitle{AuROC - Rank-Transformed - Mixed Data}
     \begin{table}
@@ -909,7 +1204,13 @@
     \end{table}
 \end{frame} % AuROC - Mixed Rank
 
-\subsection{Conclusion}
+\note{
+    \begin{itemize}
+        \item  Here we see an interesting result:  the score efficacy for \emph{lhkde} is
+            very close to that of \emph{hkde}.  And only on one dataset, mammography, did
+            we see the combined projection significantly out-perform the separate projections.
+    \end{itemize}
+}
 
 \section[Storm Surge]{Extremal Dependence of Storm Surge Using a PoT Model}
 \subsection{Introduction}
@@ -922,6 +1223,14 @@
     \includegraphics[height=\frametextheight]{./ch3/plots/slosh_combined}
     \end{center}
 \end{frame} % SLOSH Locations
+
+\note{
+    \begin{itemize}
+        \item SLOSH, or Sea, Lakes, and Overland Surge due to Hurricanes, is a storm-surge
+            simulator.
+        \item Based on 
+    \end{itemize}
+}
 
 \begin{frame}
     \frametitle{Sea, Lakes, and Overland Surges due to Hurricanes (SLOSH)}
@@ -968,6 +1277,12 @@
     \end{minipage}
 \end{frame} % SLOSH Intro
 
+\note{
+    \begin{itemize}
+        \item
+    \end{itemize}
+}
+
 \begin{frame}
     \frametitle{Identified Sites in Delaware}
     \begin{centering}
@@ -975,12 +1290,24 @@
     \end{centering}
 \end{frame} % Delaware Plot
 
+\note{
+    \begin{itemize}
+        \item
+    \end{itemize}
+}
+
 \begin{frame}
     \frametitle{Parameters of Surviving Storms}
     \begin{center}
         \includegraphics[height=0.99\frametextheight]{./ch3/plots/threshold_pairs}
     \end{center}
 \end{frame} % Threshold Pairs
+
+\note{
+    \begin{itemize}
+        \item
+    \end{itemize}
+}
 
 \subsection{Methodology}
 
@@ -1005,14 +1332,15 @@
             \end{aligned}
         \]
         where $\omega \in [0,1)$ is discount parameter, $\eta > -\omega$ is concentration parameter.
-    \item Cluster Probability Full Conditional
+    \item Fit via MCMC and (Mean Field) Variational Approximation
+    \item MCMC Cluster Probability Full Conditional
         \[
         \mathbb{P}\left(\gamma_n = \jmath\mid \bm{y},\bm{\alpha},\bm{\rho}\right) = 
             \frac{\pi_\jmath\mathcal{PG}(\bm{y}_n\mid\bm{\alpha}_{\jmath})}{
                 \sum_{k = 1}^J \pi_k\mathcal{PG}(\bm{y}_n\mid\bm{\alpha}_{\jmath})}
         \]
         where $\pi_{\jmath} = \rho_{\jmath}\prod_{k < \jmath}(1 - \rho_k)$
-        \item Cluster Weight Full Conditional
+        \item MCMC Cluster Weight Full Conditional
         \[
         \rho_{\jmath}\mid\bm{\gamma} \sim 
             \mathcal{B}\left(\zeta_{\rho_\jmath 1} = 1 + C_{\jmath} - \omega,\; 
@@ -1107,7 +1435,7 @@
         \[
         \bm{y}_n \sim \int_0^{\infty}
             \prod_{d = 1}^D \mathcal{G}\left(r_ny_{nd}\mid 
-                g(\bm{x}_n^T\bm{\theta}_{nd}), 1\right) \times J^{\neg r}(\bm{y}_i) r^{D-1}\text{d}r 
+                g(\bm{x}_n^T\bm{\theta}_{nd}), 1\right) \times J^{\neg r}(\bm{y}_n) r^{D-1}\text{d}r 
         \]
         %\pause
         or, more succinctly
@@ -1137,9 +1465,21 @@
 
 \begin{frame}
     \frametitle{Fully Specified Model Recovery}
-    \begin{center}
-    \includegraphics[width = \textwidth]{./ch3/plots/simulated_reg}
-    \end{center}
+    % \begin{center}
+    % \includegraphics[width = \textwidth]{./ch3/plots/simulated_reg}
+    % \end{center}
+    % \begin{center}
+    % {\scriptsize
+    % (Left) $\bm{x}$ - Inputs\hspace{1cm}(Middle) $\bm{y}$ - Outputs\hspace{1cm} (Right) $\bm{y}^*$ Posterior Predictive Sample
+    % }
+    % \end{center}
+    \begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{./ch3/plots/simulated_reg}
+    \caption{(Left) Regressors; (Middle) Output; (Right) Posterior Predictive Sample.
+        Cluster labels are \emph{recovered}.
+        }
+    \end{figure}
 \end{frame} % Fully Specified Model Recovery
 
 \begin{frame}
@@ -1176,13 +1516,6 @@
     \end{center}
 \end{frame}
 
-\begin{frame}
-    \frametitle{Conditional Survival Surfaces}
-    \begin{center}
-        \includegraphics[height=0.99\frametextheight]{./ch3/plots/condsurv_reg/condsurv_reg_2d_std}
-    \end{center}
-\end{frame}
-
 \subsection{Conclusion}
 
 \section{Conclusion}
@@ -1192,12 +1525,11 @@
 \begin{frame}
     \frametitle{BNP Inference for Multivariate PoT Models}
     \begin{itemize}
-        \item Explored separation of inference for angular and radial components
-        \item Introduced a means of model selection using 
-        \item Introduced the projected gamma distribution as an angular distribution
+        \item Separation of inference for angular and radial components of extreme vector
+        \item Model selection using energy score, with a novel negative definite kernel
+        \item Introduced projected gamma distribution as an angular distribution
         \item Used projected gamma as the kernel of a BNP mixture angular data model
-        \item Used this angular data model to infer the dependence structure of geographical
-            regions in the integrated vapor transport, an atmospheric river over California.
+        \item Infer the dependence structure of geographical regions in IVT
     \end{itemize}
 \end{frame}
 
@@ -1224,6 +1556,13 @@
 
 \begin{frame}
     \frametitle{Extremal Dependence of Storm Surge Using a PoT Model}
+    \begin{itemize}
+        \item Application of BNP mixture of projected gammas at scale
+        \item Inferred dependence structure of extreme storm surge simulations under SLOSH
+        \item Conditional survival probability functions given various scenarios
+        \item Angular regression model using projected gamma distribution
+        \item Expand conditional survival analysis to consider storm characteristics
+    \end{itemize}
 \end{frame}
 
 \subsection{Looking Forward}
@@ -1325,7 +1664,7 @@
         \item Sample $r\mid\bm{\alpha},\bm{\beta},\bm{y}$
         \[
             r\mid\bm{\alpha},\bm{\beta},\bm{y} \sim 
-                \text{Ga}\left(r_i\mid \sum_{d = 1}^D \alpha_d, 
+                \text{Ga}\left(r\mid \sum_{d = 1}^D \alpha_d, 
                     \sum_{d = 1}^D\beta_dy_d\right)
         \]
         %\pause
@@ -1444,14 +1783,25 @@
       \item Then for the other property of negative definiteness
   \begin{equation*}
     \begin{aligned}
-      \sum_{i = 1}^n\sum_{j = 1}^n \alpha_i\alpha_j g(\bm{x}_1,\bm{x}_2) &= \sum_{i = 1}^n\sum_{j = 1}^n \alpha_i\alpha_j \bigg[\lVert\bm{c} - \bm{x}_1\rVert_2 + \lVert\bm{x}_2 - \bm{c}\rVert_2\bigg]\\
-      &= \sum_{i = 1}^n\sum_{j = 1}^n \alpha_i\alpha_j\lVert\bm{c} - \bm{x}_1\rVert_2 + \sum_{i = 1}^n\sum_{j = 1}^n \alpha_i\alpha_j\lVert\bm{x}_2 - \bm{c}\rVert_2
+      \sum_{i = 1}^N\sum_{j = 1}^N \alpha_i\alpha_j g(\bm{x}_1,\bm{x}_2) 
+        &= \sum_{i = 1}^N\sum_{j = 1}^N \alpha_i\alpha_j \bigg[\lVert\bm{c} - \bm{x}_1\rVert_2 
+            + \lVert\bm{x}_2 - \bm{c}\rVert_2\bigg]\\
+      &= \sum_{i = 1}^N\sum_{j = 1}^N \alpha_i\alpha_j\lVert\bm{c} - \bm{x}_1\rVert_2 +
+            \sum_{i = 1}^N\sum_{j = 1}^N \alpha_i\alpha_j\lVert\bm{x}_2 - \bm{c}\rVert_2
     \end{aligned}
   \end{equation*}
   which is less than or equal to $0$ in both terms
   \end{itemize} 
   \end{itemize}
 \end{frame}
+
+
+\begin{frame}
+  \frametitle{IVT - Energy Score}
+  \begin{center}
+    \input{ch1/tables/table_dev_updated}
+  \end{center}
+\end{frame} % IVT - Energy Score
 
 \subsection*{Conditional Survival}
 
@@ -1578,6 +1928,49 @@
 \end{frame} % Anomaly Detection Methods
 
 \begin{frame}
+    \frametitle{Angular Data Model}
+    \label{ndpg:angulardatamodel}
+    {\small 
+    \begin{itemize}
+    \item The Model
+    \[
+        \begin{aligned}
+        \bm{y}_n \mid \bm{\alpha}_n &\sim \mathcal{PG}_p
+                \left(\bm{y}\mid\bm{\alpha}_n, \bm{1}\right)\\
+        \bm{\alpha_n} &\sim G\\
+        G &\sim \mathcal{PY}\left(\omega, \eta, G_0\right)\\
+        \end{aligned}
+        ~\hspace{1cm}
+        \begin{aligned}
+        G_0 &= \mathcal{LN}_D\left(\bm{\alpha}\mid\bm{\mu},\Sigma\right)\\
+        \mu &\sim \mathcal{N}_D\left(\bm{0},\bm{1}\right)\\
+        \Sigma &\sim \mathcal{IW}_D\left(\nu, \Psi\right).
+        \end{aligned}
+    \]
+    \item Stick-breaking Weight - Full Conditional
+    \[
+    \rho_{\jmath} \mid \bm{n} \sim \text{Beta}\left(1 + C_{\jmath} - \omega, 
+            \eta + \sum_{k > \jmath} C_k + \jmath \omega\right)
+    \]
+    %\pause
+    \item Cluster weights
+    \[
+        \pi_{\jmath} := \rho_{\jmath} \prod_{k < \jmath}(1 - \rho_k)
+    \]
+    %\pause
+    \item Cluster Identity - Full Conditional
+    \[
+    \mathbb{P}\left[\gamma_n = \jmath \mid \bm{\pi},\bm{\alpha}\right] =
+            \frac{\pi_{\jmath}\;\mathcal{PG}_p\left(\bm{y}_n\mid\bm{\alpha}_{\jmath},\bm{1}\right)}{
+                \sum_{k = 1}^J \pi_k\;
+                \mathcal{PG}_p\left(\bm{y}_n\mid\bm{\alpha}_k,\bm{1}\right)}
+    \]
+    \end{itemize}
+    }
+    \hyperlink{ndpg:estimationofangularscore}{\beamerbutton{Estimation of Angular Score}}
+\end{frame} % Angular Distribution
+
+\begin{frame}
     \frametitle{Novelty Scores - Calculation}
     \label{ndpg:noveltyscoresdetail}
     {\footnotesize
@@ -1642,6 +2035,41 @@
     \hyperlink{ndpg:noveltyscores}{\beamerbutton{Novelty Scores}}
 \end{frame} % Categorical Anomaly Scores
 
+\begin{frame}
+    \frametitle{Categorical Data Model}
+    \label{ndpg:categoricaldatamodel}
+    Let $\bm{c}_m$ be categorical RV with $D_m$ categories in one-hot encoding.  
+    then $\mathcal{CDC}(\bm{c}\mid\bm{\alpha}) = 
+        \prod_{m = 1}^M \mathcal{DC}(\bm{c}_m\mid\bm{\alpha}_m)$.  
+        Then
+    \begin{itemize}
+    %\pause
+    \item Model:
+    \[
+    \begin{aligned}
+      \bm{c}_n \mid \bm{\alpha}_n &\sim 
+        \mathcal{CDC}\left(\bm{c}_n\mid\bm{\alpha}_n\right)\\
+      \bm{\alpha_n} &\sim G\\
+      G &\sim \mathcal{PY}\left(d, \eta, G_0\right)\\
+      \end{aligned}
+      ~\hspace{1cm}
+      \begin{aligned}
+      G_0 &= \mathcal{LN}\left(\bm{\alpha}\mid\bm{\mu},\Sigma\right)\\
+      \mu &\sim \mathcal{N}\left(\bm{0},\bm{1}\right)\\
+      \Sigma &\sim \mathcal{IW}\left(\nu, \Psi\right).
+      \end{aligned}
+      \]
+    %\pause
+    \item $\Psi$ is block-diagonal matrix.  Within each $m$-block:
+    \begin{itemize}
+        \item diagonals set to $\psi_0$
+        \item off-diagonals set to $-\psi_0D_m^{-2}$; Covariance of uniform categorical.
+    \end{itemize}
+    \end{itemize}
+    \hyperlink{ndpg:categoricaldistributions}{\beamerbutton{Categorical Distributions}}
+\end{frame} % Categorical Data Model 
+
+
 \subsection*{At Scale}
 
 \begin{frame}
@@ -1651,8 +2079,6 @@
         \includegraphics[height = 0.99\frametextheight]{./ch3/plots/explore_threshold}
     \end{center}
 \end{frame} % SLOSH Threshold Tradeoffs
-
-\subsubsection{Variational Inference}
 
 \begin{frame}
     \frametitle{A Brief Review}
@@ -1712,6 +2138,8 @@
     \end{itemize}
 \end{frame} % Optimization Strategy
 
+
+
 \begin{frame}
     \frametitle{VB Initialization}
     {\footnotesize
@@ -1770,6 +2198,14 @@
     \frametitle{Conditional Survival Curves (Regression, Real)}
     \begin{center}
         \includegraphics[height=0.99\frametextheight]{./ch3/plots/condsurv_reg/condsurv_reg_1d_real}
+    \end{center}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Conditional Survival Surfaces (Regression, Std)}
+    \begin{center}
+        \includegraphics[height=0.99\frametextheight]{./ch3/plots/condsurv_reg/condsurv_reg_2d_std}
     \end{center}
 \end{frame}
 
